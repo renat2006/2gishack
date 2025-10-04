@@ -49,12 +49,9 @@ public/worker-*.js
 public/worker-*.js.map
 
 # IDE
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-.idea
+.vscode/
+.cursor/
+.idea/
 *.swp
 *.swo
 *~
@@ -72,5 +69,6 @@ Thumbs.db
 # Cache
 .cache
 .eslintcache
+.npm-cache/
 
 
