@@ -1,4 +1,0 @@
----
-alwaysApply: true
----
-Write beautiful, minimalist, and optimized React, Next + TS code. Always check for type conformance and quality, avoid using "any" and strictly type everything. Apply front-end and SOLID development best practices. Use a modern approach to file organization and try to break down functionality into folders and files as much as possible. Check for errors. Analyze the coding style and write in a consistent, consistent style. Do not write comments in the code unless I specifically ask! Try to create a responsive, mobile-first design optimized for phones. We are developing a PWA - this is our focus; PWA mode should be built in from the start. Make the interface stylish and beautiful, with a consistent style.
