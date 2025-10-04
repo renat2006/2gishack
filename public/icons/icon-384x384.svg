@@ -1,0 +1,10 @@
+
+<svg width="384" height="384" xmlns="http://www.w3.org/2000/svg">
+  <rect width="384" height="384" fill="#000000"/>
+  <text x="50%" y="50%" font-family="Arial" font-size="48" fill="#ffffff" text-anchor="middle" dy=".3em">
+    2GIS
+  </text>
+  <text x="50%" y="65%" font-family="Arial" font-size="32" fill="#ffffff" text-anchor="middle" dy=".3em">
+    384x384
+  </text>
+</svg>

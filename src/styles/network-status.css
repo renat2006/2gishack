@@ -1,0 +1,48 @@
+.network-status {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-sm);
+  z-index: 2000;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.network-status.offline {
+  background: var(--color-error);
+  color: white;
+}
+
+.network-status.slow {
+  background: var(--color-warning);
+  color: white;
+}
+
+.network-status-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.network-status-icon {
+  font-size: 1.25rem;
+}
+
+.network-status-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+
