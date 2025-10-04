@@ -188,7 +188,6 @@ const nextConfig = {
   },
 
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['react', 'react-dom'],
   },
 
