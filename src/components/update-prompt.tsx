@@ -14,18 +14,11 @@ export function UpdatePrompt() {
     <div className="update-prompt">
       <div className="update-prompt-content">
         <span className="update-prompt-icon">🔄</span>
-        <span className="update-prompt-text">
-          Доступна новая версия приложения
-        </span>
+        <span className="update-prompt-text">Доступна новая версия приложения</span>
       </div>
-      <button 
-        className="update-button"
-        onClick={updateServiceWorker}
-      >
+      <button className="update-button" onClick={updateServiceWorker}>
         Обновить
       </button>
     </div>
   );
 }
-
-

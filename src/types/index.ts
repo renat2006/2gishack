@@ -18,5 +18,3 @@ export interface AppConfig {
     pushNotifications: boolean;
   };
 }
-
-

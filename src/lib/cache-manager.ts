@@ -53,5 +53,3 @@ export class CacheManager {
     await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
   }
 }
-
-

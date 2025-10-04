@@ -63,5 +63,3 @@ export interface CacheOptions {
   networkTimeoutSeconds?: number;
   rangeRequests?: boolean;
 }
-
-

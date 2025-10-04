@@ -16,21 +16,15 @@ export function NetworkStatus() {
         {!isOnline ? (
           <>
             <span className="network-status-icon">📡</span>
-            <span className="network-status-text">
-              Нет подключения к интернету
-            </span>
+            <span className="network-status-text">Нет подключения к интернету</span>
           </>
         ) : (
           <>
             <span className="network-status-icon">🐌</span>
-            <span className="network-status-text">
-              Медленное соединение
-            </span>
+            <span className="network-status-text">Медленное соединение</span>
           </>
         )}
       </div>
     </div>
   );
 }
-
-
