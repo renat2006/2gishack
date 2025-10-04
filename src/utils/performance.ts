@@ -5,7 +5,7 @@ export class PerformanceMonitor {
     try {
       performance.mark(endMark);
       performance.measure(name, startMark, endMark);
-      
+
       const measure = performance.getEntriesByName(name)[0];
       const duration = measure ? measure.duration : 0;
 
@@ -21,7 +21,7 @@ export class PerformanceMonitor {
 
   static mark(name: string): void {
     if (typeof window === 'undefined') return;
-    
+
     try {
       performance.mark(name);
     } catch {
@@ -32,7 +32,9 @@ export class PerformanceMonitor {
   static getNavigationTiming(): PerformanceNavigationTiming | null {
     if (typeof window === 'undefined') return null;
 
-    const [navigationTiming] = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+    const [navigationTiming] = performance.getEntriesByType(
+      'navigation'
+    ) as PerformanceNavigationTiming[];
     return navigationTiming || null;
   }
 
@@ -83,5 +85,3 @@ export class PerformanceMonitor {
     });
   }
 }
-
-

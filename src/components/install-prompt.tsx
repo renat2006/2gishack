@@ -36,22 +36,13 @@ export function InstallPrompt() {
         </div>
       </div>
       <div className="install-prompt-actions">
-        <button 
-          className="install-button-secondary"
-          onClick={handleDismiss}
-          aria-label="Закрыть"
-        >
+        <button className="install-button-secondary" onClick={handleDismiss} aria-label="Закрыть">
           Позже
         </button>
-        <button 
-          className="install-button-primary"
-          onClick={promptInstall}
-        >
+        <button className="install-button-primary" onClick={promptInstall}>
           Установить
         </button>
       </div>
     </div>
   );
 }
-
-

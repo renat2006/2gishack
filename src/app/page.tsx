@@ -3,9 +3,7 @@ export default function HomePage() {
     <main className="main-container">
       <div className="hero">
         <h1 className="title">2GIS Hack PWA</h1>
-        <p className="subtitle">
-          Progressive Web Application с оффлайн поддержкой
-        </p>
+        <p className="subtitle">Progressive Web Application с оффлайн поддержкой</p>
       </div>
 
       <div className="features">
@@ -19,16 +17,8 @@ export default function HomePage() {
           title="Mobile-first"
           description="Адаптивный дизайн для всех устройств"
         />
-        <FeatureCard
-          icon="💾"
-          title="Оффлайн режим"
-          description="Работает без интернета"
-        />
-        <FeatureCard
-          icon="🚀"
-          title="PWA"
-          description="Устанавливается как приложение"
-        />
+        <FeatureCard icon="💾" title="Оффлайн режим" description="Работает без интернета" />
+        <FeatureCard icon="🚀" title="PWA" description="Устанавливается как приложение" />
       </div>
     </main>
   );
@@ -49,4 +39,3 @@ function FeatureCard({ icon, title, description }: FeatureCardProps) {
     </div>
   );
 }
-

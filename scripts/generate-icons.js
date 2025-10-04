@@ -25,15 +25,15 @@ console.log('📱 Генерация placeholder иконок для PWA...\n');
 sizes.forEach((size) => {
   const filename = `icon-${size}x${size}.svg`;
   const filepath = path.join(iconsDir, filename);
-  
+
   fs.writeFileSync(filepath, createPlaceholderSVG(size));
   console.log(`✓ Создан ${filename}`);
 });
 
 console.log('\n✅ Все placeholder иконки созданы!');
-console.log('\n⚠️  ВАЖНО: Замените SVG placeholder на настоящие PNG иконки перед production деплоем.');
+console.log(
+  '\n⚠️  ВАЖНО: Замените SVG placeholder на настоящие PNG иконки перед production деплоем.'
+);
 console.log('Используйте инструменты:');
 console.log('- https://github.com/elegantapp/pwa-asset-generator');
 console.log('- https://realfavicongenerator.net/');
-
-

@@ -34,9 +34,7 @@ export function useNetworkStatus() {
     const checkConnectionSpeed = () => {
       if (connection) {
         const effectiveType = connection.effectiveType;
-        setIsSlowConnection(
-          effectiveType === 'slow-2g' || effectiveType === '2g'
-        );
+        setIsSlowConnection(effectiveType === 'slow-2g' || effectiveType === '2g');
       }
     };
 
@@ -59,5 +57,3 @@ export function useNetworkStatus() {
     isSlowConnection,
   };
 }
-
-

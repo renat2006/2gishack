@@ -18,5 +18,3 @@ export const appConfig: AppConfig = {
     pushNotifications: false,
   },
 };
-
-

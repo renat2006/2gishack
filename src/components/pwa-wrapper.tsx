@@ -14,5 +14,3 @@ export function PWAWrapper({ children }: { children: React.ReactNode }) {
     </>
   );
 }
-
-
