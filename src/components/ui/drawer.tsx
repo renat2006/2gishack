@@ -38,24 +38,24 @@ const DrawerContent = React.forwardRef<
     <DrawerPrimitive.Content
       ref={ref}
       className={`fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto max-h-[90%] flex-col rounded-t-lg bg-white ring-1 ring-zinc-200 shadow-none dark:bg-zinc-900 dark:ring-zinc-800 ${className || ''}`}
-      style={{ 
+      style={{
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1.5rem)',
-        animation: 'drawer-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+        animation: 'drawer-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
       }}
       {...props}
     >
       {/* Handle bar - минималистичный */}
       <div className="mx-auto mt-4 mb-6 h-1.5 w-12 flex-shrink-0 rounded-full bg-zinc-300 dark:bg-zinc-600" />
-      
+
       {/* Основной контент с современными отступами */}
-      <div 
+      <div
         className="flex flex-col gap-4 overflow-y-auto scrollbar-hide"
-        style={{ 
+        style={{
           paddingLeft: '24px',
           paddingRight: '24px',
           paddingBottom: '24px',
           paddingTop: '16px',
-          boxSizing: 'border-box'
+          boxSizing: 'border-box',
         }}
       >
         {children}
@@ -65,25 +65,13 @@ const DrawerContent = React.forwardRef<
 ));
 DrawerContent.displayName = 'DrawerContent';
 
-const DrawerHeader = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={`flex flex-col space-y-1.5 pb-4 ${className || ''}`}
-    {...props}
-  />
+const DrawerHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={`flex flex-col space-y-1.5 pb-4 ${className || ''}`} {...props} />
 );
 DrawerHeader.displayName = 'DrawerHeader';
 
-const DrawerFooter = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={`mt-auto flex flex-col gap-2 pt-4 ${className || ''}`}
-    {...props}
-  />
+const DrawerFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={`mt-auto flex flex-col gap-2 pt-4 ${className || ''}`} {...props} />
 );
 DrawerFooter.displayName = 'DrawerFooter';
 
@@ -123,4 +111,3 @@ export {
   DrawerTitle,
   DrawerDescription,
 };
-

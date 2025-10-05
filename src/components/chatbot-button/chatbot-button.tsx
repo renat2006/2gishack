@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  ChatCircle,
-  MagnifyingGlass,
-  PaperPlaneRight,
-  X,
-} from '@phosphor-icons/react/dist/ssr';
+import { ChatCircle, MagnifyingGlass, PaperPlaneRight, X } from '@phosphor-icons/react/dist/ssr';
 import React, { useState, useEffect } from 'react';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { apiClient } from '@/lib/api-client';
@@ -67,10 +62,13 @@ export function ChatbotButton() {
     if (storedId) {
       setDialogId(storedId);
     } else {
-      apiClient.createDialog().then((res) => {
-        setDialogId(res.dialog_id);
-        LocalStorage.set('chat_dialog_id', res.dialog_id);
-      }).catch(() => {});
+      apiClient
+        .createDialog()
+        .then((res) => {
+          setDialogId(res.dialog_id);
+          LocalStorage.set('chat_dialog_id', res.dialog_id);
+        })
+        .catch(() => {});
     }
   }, []);
 
@@ -80,10 +78,10 @@ export function ChatbotButton() {
 
     setIsLoading(true);
     setError(null);
-    
+
     // Очищаем карту перед новым запросом
     window.dispatchEvent(new CustomEvent('map:clear'));
-    
+
     const userMsg: ChatMessage = { id: `u-${Date.now()}`, role: 'user', kind: 'text', text: q };
     setMessages((prev) => [...prev, userMsg]);
 
@@ -97,7 +95,7 @@ export function ChatbotButton() {
               console.warn('⚠️ Ошибка геолокации:', {
                 code: error.code,
                 message: error.message,
-                codeText: getGeolocationErrorText(error.code)
+                codeText: getGeolocationErrorText(error.code),
               });
               rej(error);
             },
@@ -119,23 +117,24 @@ export function ChatbotButton() {
       if (err instanceof GeolocationPositionError) {
         const errorText = getGeolocationErrorText(err.code);
         console.warn(`Геолокация недоступна: ${errorText}`);
-        
+
         // Добавляем информативное сообщение в чат
         setMessages((prev) => [
           ...prev,
-          { 
-            id: `geo-warn-${Date.now()}`, 
-            role: 'assistant', 
-            kind: 'text', 
-            text: `Геолокация недоступна: ${errorText}. Поиск будет выполнен без учёта вашего местоположения.` 
-          }
+          {
+            id: `geo-warn-${Date.now()}`,
+            role: 'assistant',
+            kind: 'text',
+            text: `Геолокация недоступна: ${errorText}. Поиск будет выполнен без учёта вашего местоположения.`,
+          },
         ]);
       }
     }
 
     try {
       // 1) Классифицируем запрос
-      let queryClass: 'search_residential_complex' | 'build_route' | 'general_question' = 'general_question';
+      let queryClass: 'search_residential_complex' | 'build_route' | 'general_question' =
+        'general_question';
       try {
         const cls = await apiClient.classifyQuery(q);
         queryClass = cls.query_class;
@@ -160,16 +159,18 @@ export function ChatbotButton() {
           }
 
           // Извлекаем координаты из waypoints для построения автомобильного маршрута
-          if (ws.route && (ws.route as Record<string, unknown>).route && ((ws.route as Record<string, unknown>).route as Record<string, unknown>).waypoints) {
-            const waypoints = ((ws.route as Record<string, unknown>).route as Record<string, unknown>).waypoints as Array<Record<string, unknown>>;
-            
+          if (ws.route && (ws.route as any).route && ((ws.route as any).route as any).waypoints) {
+            const waypoints = ((ws.route as any).route as any).waypoints as Array<any>;
+
             if (waypoints.length >= 2) {
               // Используем 2ГИС Routing API для автомобильного маршрута
-              const fromPoint = (waypoints[0].projected_point || waypoints[0].original_point) as Record<string, number>;
-              const toPoint = (waypoints[waypoints.length - 1].projected_point || waypoints[waypoints.length - 1].original_point) as Record<string, number>;
-              
+              const fromPoint = (waypoints[0].projected_point ||
+                waypoints[0].original_point) as any;
+              const toPoint = (waypoints[waypoints.length - 1].projected_point ||
+                waypoints[waypoints.length - 1].original_point) as any;
+
               console.log('Строим автомобильный маршрут от:', fromPoint, 'до:', toPoint);
-              
+
               try {
                 // Используем прямой API 2ГИС согласно документации
                 const apiKey = process.env.NEXT_PUBLIC_2GIS_API_KEY;
@@ -178,39 +179,43 @@ export function ChatbotButton() {
                 }
 
                 const routingUrl = `https://routing.api.2gis.com/routing/7.0.0/global?key=${apiKey}`;
-                
+
                 const routingResponse = await fetch(routingUrl, {
                   method: 'POST',
-                  headers: { 
+                  headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+                    Accept: 'application/json',
                   },
                   body: JSON.stringify({
                     points: [
                       {
                         lat: fromPoint.lat,
-                        lon: fromPoint.lon
+                        lon: fromPoint.lon,
                       },
                       {
                         lat: toPoint.lat,
-                        lon: toPoint.lon
-                      }
+                        lon: toPoint.lon,
+                      },
                     ],
-                    transport: 'car'
-                  })
+                    transport: 'car',
+                  }),
                 });
-                
+
                 if (routingResponse.ok) {
                   const routeData = await routingResponse.json();
                   console.log('Данные автомобильного маршрута от 2ГИС:', routeData);
-                  
+
                   // Обрабатываем ответ от 2ГИС API согласно реальной структуре
-                  if (routeData.result && Array.isArray(routeData.result) && routeData.result.length > 0) {
+                  if (
+                    routeData.result &&
+                    Array.isArray(routeData.result) &&
+                    routeData.result.length > 0
+                  ) {
                     const route = routeData.result[0]; // Берем первый маршрут
-                    
+
                     // Добавляем маркеры точек
-                    const points = waypoints.map((wp: Record<string, unknown>, index: number) => {
-                      const point = (wp.projected_point || wp.original_point) as Record<string, number>;
+                    const points = waypoints.map((wp: any, index: number) => {
+                      const point = (wp.projected_point || wp.original_point) as any;
                       const address = ws.addresses?.[index];
                       return {
                         lon: point.lon,
@@ -219,14 +224,16 @@ export function ChatbotButton() {
                         address: address?.address || 'Адрес не указан',
                       };
                     });
-                    
+
                     if (points.length) {
-                      window.dispatchEvent(new CustomEvent('map:add-markers', { detail: { points } }));
+                      window.dispatchEvent(
+                        new CustomEvent('map:add-markers', { detail: { points } })
+                      );
                     }
-                    
+
                     // Извлекаем координаты маршрута из maneuvers согласно реальной структуре API 2ГИС
-                    let coordinates: Array<[number, number]> = [];
-                    
+                    const coordinates: Array<[number, number]> = [];
+
                     if (route.maneuvers && route.maneuvers.length > 0) {
                       // Извлекаем координаты из maneuvers
                       route.maneuvers.forEach((maneuver: any) => {
@@ -236,7 +243,9 @@ export function ChatbotButton() {
                               // Парсим LINESTRING из WKT формата
                               const linestring = geometry.selection;
                               if (linestring.startsWith('LINESTRING(')) {
-                                const coordsStr = linestring.replace('LINESTRING(', '').replace(')', '');
+                                const coordsStr = linestring
+                                  .replace('LINESTRING(', '')
+                                  .replace(')', '');
                                 const coordPairs = coordsStr.split(',');
                                 coordPairs.forEach((pair: string) => {
                                   const [lon, lat] = pair.trim().split(' ').map(Number);
@@ -250,37 +259,41 @@ export function ChatbotButton() {
                         }
                       });
                     }
-                    
+
                     console.log('Извлеченные координаты маршрута:', coordinates);
-                    
+
                     // Рисуем автомобильный маршрут
                     if (coordinates.length > 1) {
                       const routeInfo = {
                         totalDistance: route.total_distance,
                         totalDuration: route.total_duration,
                         algorithm: route.algorithm,
-                        reliability: route.reliability
+                        reliability: route.reliability,
                       };
-                      
-                      window.dispatchEvent(new CustomEvent('map:draw-route', { 
-                        detail: { 
-                          coordinates: coordinates,
-                          routeInfo: routeInfo
-                        } 
-                      }));
-                      
+
+                      window.dispatchEvent(
+                        new CustomEvent('map:draw-route', {
+                          detail: {
+                            coordinates: coordinates,
+                            routeInfo: routeInfo,
+                          },
+                        })
+                      );
+
                       // Показываем информацию о маршруте
-                      const distance = route.ui_total_distance ? `${route.ui_total_distance.value} ${route.ui_total_distance.unit}` : 'неизвестно';
+                      const distance = route.ui_total_distance
+                        ? `${route.ui_total_distance.value} ${route.ui_total_distance.unit}`
+                        : 'неизвестно';
                       const duration = route.ui_total_duration || 'неизвестно';
-                      
+
                       setMessages((prev) => [
                         ...prev,
-                        { 
-                          id: `route-${Date.now()}`, 
-                          role: 'assistant', 
-                          kind: 'text', 
-                          text: `Автомобильный маршрут построен через 2ГИС!\nРасстояние: ${distance}\nВремя: ${duration}\nАлгоритм: ${route.algorithm || 'стандартный'}` 
-                        }
+                        {
+                          id: `route-${Date.now()}`,
+                          role: 'assistant',
+                          kind: 'text',
+                          text: `Автомобильный маршрут построен через 2ГИС!\nРасстояние: ${distance}\nВремя: ${duration}\nАлгоритм: ${route.algorithm || 'стандартный'}`,
+                        },
                       ]);
                     } else {
                       throw new Error('Не удалось извлечь координаты маршрута');
@@ -303,7 +316,6 @@ export function ChatbotButton() {
           } else {
             throw new Error('Не удалось получить точки маршрута');
           }
-
         } catch (err) {
           const msg = err instanceof Error ? err.message : 'Ошибка webSearch';
           setMessages((prev) => [
@@ -359,28 +371,31 @@ export function ChatbotButton() {
           },
         };
         setMessages((prev) => [...prev, complexesMsg]);
-             // добавим маркеры на карту с полными данными
-             try {
-               const points = response.ranked_complexes
-                 .filter((c: any) => typeof c.lon === 'number' && typeof c.lat === 'number')
-                 .map((c: any) => ({
-                   lon: c.lon,
-                   lat: c.lat,
-                   title: c.name,
-                   address: c.address,
-                   score: c.score,
-                   website: c.website,
-                   id: c.id || c._id,
-                   distance: c.distance,
-                 }));
-               window.dispatchEvent(new CustomEvent('map:add-markers', { detail: { points } }));
-             } catch {}
+        // добавим маркеры на карту с полными данными
+        try {
+          const points = response.ranked_complexes
+            .filter((c: any) => typeof c.lon === 'number' && typeof c.lat === 'number')
+            .map((c: any) => ({
+              lon: c.lon,
+              lat: c.lat,
+              title: c.name,
+              address: c.address,
+              score: c.score,
+              website: c.website,
+              id: c.id || c._id,
+              distance: c.distance,
+            }));
+          window.dispatchEvent(new CustomEvent('map:add-markers', { detail: { points } }));
+        } catch {}
       }
 
-      // (build_route уже обработан выше) 
+      // (build_route уже обработан выше)
     } catch (e) {
       const err = e instanceof Error ? e.message : 'Ошибка запроса';
-      setMessages((prev) => [...prev, { id: `err-${Date.now()}`, role: 'assistant', kind: 'text', text: `Ошибка: ${err}` }]);
+      setMessages((prev) => [
+        ...prev,
+        { id: `err-${Date.now()}`, role: 'assistant', kind: 'text', text: `Ошибка: ${err}` },
+      ]);
       setError(err);
     } finally {
       setIsLoading(false);
@@ -416,9 +431,7 @@ export function ChatbotButton() {
               <DrawerTitle className="text-base font-semibold leading-none text-zinc-900 dark:text-white">
                 Поиск жилья
               </DrawerTitle>
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                Умный помощник по ЖК
-              </p>
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Умный помощник по ЖК</p>
             </div>
           </div>
           <DrawerClose asChild>
@@ -439,79 +452,79 @@ export function ChatbotButton() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Спроси ассистента..."
-          leftSection={
-            <MagnifyingGlass
-              size={20}
-              weight="bold"
-              className="text-zinc-400 dark:text-zinc-500"
-            />
-          }
-          rightSection={
-            <div className="flex items-center gap-1.5">
+            leftSection={
+              <MagnifyingGlass
+                size={20}
+                weight="bold"
+                className="text-zinc-400 dark:text-zinc-500"
+              />
+            }
+            rightSection={
+              <div className="flex items-center gap-1.5">
                 {input && (
+                  <Tooltip.Provider delayDuration={150}>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setInput('')}
+                          className="h-9 w-9"
+                          aria-label="Очистить"
+                          type="button"
+                        >
+                          <X size={18} weight="bold" />
+                        </Button>
+                      </Tooltip.Trigger>
+                      <Tooltip.Portal>
+                        <Tooltip.Content
+                          side="top"
+                          align="center"
+                          sideOffset={6}
+                          className="rounded-md bg-zinc-900 px-2.5 py-1.5 text-xs text-white shadow-md dark:bg-zinc-800"
+                        >
+                          Очистить
+                        </Tooltip.Content>
+                      </Tooltip.Portal>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                )}
                 <Tooltip.Provider delayDuration={150}>
                   <Tooltip.Root>
                     <Tooltip.Trigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                          onClick={() => setInput('')}
-                className="h-9 w-9"
-                        aria-label="Очистить"
-                          type="button"
-              >
-                <X size={18} weight="bold" />
-              </Button>
+                      <Button
+                        size="icon"
+                        disabled={isLoading}
+                        aria-label="Отправить"
+                        className={'h-10 w-10 ' + (isLoading ? 'animate-pulse' : '')}
+                        type="submit"
+                      >
+                        {isLoading ? (
+                          <div className="grid place-items-center">
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                          </div>
+                        ) : (
+                          <PaperPlaneRight size={16} weight="fill" />
+                        )}
+                      </Button>
                     </Tooltip.Trigger>
                     <Tooltip.Portal>
                       <Tooltip.Content
                         side="top"
-                        align="center"
+                        align="end"
                         sideOffset={6}
                         className="rounded-md bg-zinc-900 px-2.5 py-1.5 text-xs text-white shadow-md dark:bg-zinc-800"
                       >
-                        Очистить
+                        Отправить
                       </Tooltip.Content>
                     </Tooltip.Portal>
                   </Tooltip.Root>
                 </Tooltip.Provider>
-              )}
-              <Tooltip.Provider delayDuration={150}>
-                <Tooltip.Root>
-                  <Tooltip.Trigger asChild>
-            <Button
-              size="icon"
-                        disabled={isLoading}
-                        aria-label="Отправить"
-                        className={"h-10 w-10 " + (isLoading ? "animate-pulse" : "")}
-                        type="submit"
-                      >
-                        {isLoading ? (
-                        <div className="grid place-items-center">
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                        </div>
-              ) : (
-                <PaperPlaneRight size={16} weight="fill" />
-              )}
-            </Button>
-                  </Tooltip.Trigger>
-                  <Tooltip.Portal>
-                    <Tooltip.Content
-                      side="top"
-                      align="end"
-                      sideOffset={6}
-                      className="rounded-md bg-zinc-900 px-2.5 py-1.5 text-xs text-white shadow-md dark:bg-zinc-800"
-                    >
-                        Отправить
-                    </Tooltip.Content>
-                  </Tooltip.Portal>
-                </Tooltip.Root>
-              </Tooltip.Provider>
-          </div>
-          }
-        />
+              </div>
+            }
+          />
         </form>
-        
+
         <div className="relative min-h-[60svh] pt-3">
           <div className="flex max-h-[65svh] flex-col gap-2 overflow-y-auto px-2 py-1 scrollbar-hide">
             {uiMessages.map((m) => (
@@ -520,7 +533,9 @@ export function ChatbotButton() {
             {isLoading && (
               <div className="flex items-center gap-2 px-0.5 py-2">
                 <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary-500" />
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">Ассистент печатает...</span>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Ассистент печатает...
+                </span>
               </div>
             )}
             {error && (

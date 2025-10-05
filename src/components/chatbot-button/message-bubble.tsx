@@ -63,7 +63,7 @@ export interface MessageBubbleProps {
 //   return (
 //     <span className="relative inline-flex min-h-[1em] items-center">
 //       <span className="whitespace-pre">{text}</span>
-//       <motion.span 
+//       <motion.span
 //         className="ml-1 h-4 w-0.5 bg-current"
 //         animate={{ opacity: [1, 0, 1] }}
 //         transition={{ duration: 0.8, repeat: Infinity }}
@@ -87,20 +87,18 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
         <>
           <div className="flex items-center gap-2 px-0.5">
             {isUser ? (
-              <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                Вы
-              </span>
+              <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Вы</span>
             ) : (
               <span className="text-xs font-medium text-primary-600 dark:text-primary-400">
                 Ассистент
               </span>
             )}
           </div>
-          <div className={`text-[15px] leading-relaxed whitespace-pre-wrap px-0.5 ${
-            isUser
-              ? 'text-zinc-900 dark:text-zinc-100'
-              : 'text-zinc-700 dark:text-zinc-300'
-          }`}>
+          <div
+            className={`text-[15px] leading-relaxed whitespace-pre-wrap px-0.5 ${
+              isUser ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-700 dark:text-zinc-300'
+            }`}
+          >
             {message.text}
           </div>
         </>
@@ -121,5 +119,3 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
     </motion.div>
   );
 };
-
-

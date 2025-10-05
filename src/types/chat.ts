@@ -38,5 +38,3 @@ export interface ChatMessage {
   text?: string;
   module?: ModuleBlock;
 }
-
-
