@@ -51,7 +51,7 @@ export const PlacesModule: React.FC<PlacesModuleProps> = ({ items, loading }) =>
           480: { slidesPerView: 1.2 },
           640: { slidesPerView: 1.6 },
           860: { slidesPerView: 2.2 },
-          1024: { slidesPerView: 2.8 }
+          1024: { slidesPerView: 2.8 },
         }}
         className="px-1"
       >
@@ -97,9 +97,13 @@ export const PlacesModule: React.FC<PlacesModuleProps> = ({ items, loading }) =>
                               <MapPin size={24} weight="fill" />
                             </div>
                             <div className="w-full space-y-1">
-                              <div className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-900 dark:text-white">{it!.name}</div>
+                              <div className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-900 dark:text-white">
+                                {it!.name}
+                              </div>
                               {it!.address_name && (
-                                <div className="line-clamp-2 text-xs leading-snug text-zinc-500 dark:text-zinc-400">{it!.address_name}</div>
+                                <div className="line-clamp-2 text-xs leading-snug text-zinc-500 dark:text-zinc-400">
+                                  {it!.address_name}
+                                </div>
                               )}
                             </div>
                           </div>
@@ -116,9 +120,13 @@ export const PlacesModule: React.FC<PlacesModuleProps> = ({ items, loading }) =>
                             <MapPin size={16} weight="fill" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="mb-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{it!.name}</div>
+                            <div className="mb-0.5 text-sm font-semibold text-zinc-900 dark:text-white">
+                              {it!.name}
+                            </div>
                             {it!.address_name && (
-                              <div className="text-xs text-zinc-500 dark:text-zinc-400 break-words">{it!.address_name}</div>
+                              <div className="text-xs text-zinc-500 dark:text-zinc-400 break-words">
+                                {it!.address_name}
+                              </div>
                             )}
                           </div>
                         </div>
@@ -132,9 +140,13 @@ export const PlacesModule: React.FC<PlacesModuleProps> = ({ items, loading }) =>
                         <MapPin size={24} weight="fill" />
                       </div>
                       <div className="w-full space-y-1">
-                        <div className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-900 dark:text-white">{it!.name}</div>
+                        <div className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-900 dark:text-white">
+                          {it!.name}
+                        </div>
                         {it!.address_name && (
-                          <div className="line-clamp-2 text-xs leading-snug text-zinc-500 dark:text-zinc-400">{it!.address_name}</div>
+                          <div className="line-clamp-2 text-xs leading-snug text-zinc-500 dark:text-zinc-400">
+                            {it!.address_name}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -148,5 +160,3 @@ export const PlacesModule: React.FC<PlacesModuleProps> = ({ items, loading }) =>
     </div>
   );
 };
-
-

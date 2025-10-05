@@ -30,13 +30,13 @@ export function Map2GIS({
   const mapContainer = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const markersRef = useRef<Array<Record<string, unknown>>>([]);
-  const routeRef = useRef<Record<string, unknown> | null>(null);
-  const mapRef = useRef<Record<string, unknown> | null>(null);
-  const mapglAPIRef = useRef<Record<string, unknown> | null>(null);
+  const markersRef = useRef<any[]>([]);
+  const routeRef = useRef<any | null>(null);
+  const mapRef = useRef<any | null>(null);
+  const mapglAPIRef = useRef<any | null>(null);
 
   useEffect(() => {
-    let map: Record<string, unknown> | null = null;
+    let map: any | null = null;
 
     const initMap = async () => {
       const apiKey = process.env.NEXT_PUBLIC_2GIS_API_KEY;
@@ -86,17 +86,17 @@ export function Map2GIS({
         }
 
         // Функция для получения подробной информации из 2ГИС API
-        // const getDetailedInfo = async (data: MarkerData) => {
+        const _getDetailedInfo = async (data: MarkerData) => {
           try {
             // Поиск объекта в 2ГИС по координатам
             const searchUrl = `https://catalog.api.2gis.com/3.0/items/geosearch?q=${encodeURIComponent(data.title || '')}&point=${data.lon},${data.lat}&radius=100&key=${process.env.NEXT_PUBLIC_2GIS_API_KEY}&fields=items.point,items.name,items.address_name,items.rubrics,items.contact_groups,items.schedule,items.rating,items.reviews,items.photos,items.attributes`;
-            
+
             const response = await fetch(searchUrl);
             if (!response.ok) throw new Error('Ошибка поиска в 2ГИС');
-            
+
             const result = await response.json();
             const item = result.result?.items?.[0];
-            
+
             if (item) {
               return {
                 name: item.name || data.title,
@@ -107,25 +107,25 @@ export function Map2GIS({
                 rating: item.rating || data.score,
                 reviews: item.reviews || {},
                 photos: item.photos || [],
-                attributes: item.attributes || {}
+                attributes: item.attributes || {},
               };
             }
           } catch (err) {
             console.error('Ошибка получения данных из 2ГИС:', err);
           }
-          
+
           return {
             name: data.title,
             address: data.address,
             rating: data.score,
             website: data.website,
-            distance: data.distance
+            distance: data.distance,
           };
-        // };
+        };
 
         // Хелпер для создания HTML попапа в стиле 2ГИС
-      const createPopupHTML = (data: MarkerData) => {
-        return `
+        const createPopupHTML = (data: MarkerData) => {
+          return `
           <div style="
             background: #ffffff;
             border: 1px solid #e5e7eb;
@@ -172,7 +172,9 @@ export function Map2GIS({
                 ">
                   ${data.title || 'Жилой комплекс'}
                 </div>
-                ${data.address ? `
+                ${
+                  data.address
+                    ? `
                   <div style="
                     font-size: 13px;
                     color: #6b7280;
@@ -180,7 +182,9 @@ export function Map2GIS({
                   ">
                     ${data.address}
                   </div>
-                ` : ''}
+                `
+                    : ''
+                }
               </div>
             </div>
             
@@ -188,7 +192,9 @@ export function Map2GIS({
             <div style="padding: 16px;">
               <!-- Информационные блоки в стиле 2ГИС -->
               <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
-                ${data.score ? `
+                ${
+                  data.score
+                    ? `
                   <div style="
                     display: inline-flex;
                     align-items: center;
@@ -204,9 +210,13 @@ export function Map2GIS({
                     <span style="font-size: 12px;">★</span>
                     <span>${data.score.toFixed(1)}</span>
                   </div>
-                ` : ''}
+                `
+                    : ''
+                }
                 
-                ${data.distance ? `
+                ${
+                  data.distance
+                    ? `
                   <div style="
                     display: inline-flex;
                     align-items: center;
@@ -222,12 +232,16 @@ export function Map2GIS({
                     <span style="font-size: 12px;">🚶</span>
                     <span>${(data.distance / 1000).toFixed(1)} км</span>
                   </div>
-                ` : ''}
+                `
+                    : ''
+                }
               </div>
               
               <!-- Кнопки в стиле 2ГИС -->
               <div style="display: flex; gap: 8px;">
-                ${data.website ? `
+                ${
+                  data.website
+                    ? `
                   <a href="${data.website}" target="_blank" rel="noopener noreferrer" 
                      style="
                        flex: 1;
@@ -251,7 +265,9 @@ export function Map2GIS({
                     <span style="font-size: 12px;">🌐</span>
                     <span>Сайт</span>
                   </a>
-                ` : ''}
+                `
+                    : ''
+                }
                 
                 <button 
                   onclick="
@@ -306,7 +322,7 @@ export function Map2GIS({
             </div>
           </div>
         `;
-      };
+        };
 
         // Обработчик клика по карте для закрытия попапов
         const handleMapClick = () => {
@@ -316,8 +332,8 @@ export function Map2GIS({
                 try {
                   m.popup.destroy();
                 } catch {
-              // Игнорируем ошибки
-            }
+                  // Игнорируем ошибки
+                }
                 m.isPopupVisible = false;
               }
             });
@@ -327,11 +343,11 @@ export function Map2GIS({
         };
 
         // Слушаем события для маркеров с анимациями
-        const addMarkersHandler = (e: CustomEvent) => {
+        const addMarkersHandler = (e: any) => {
           try {
             markersRef.current.forEach((m) => m && m.destroy && m.destroy());
             markersRef.current = [];
-            
+
             const points: MarkerData[] = e.detail?.points || [];
             if (!points.length) return;
 
@@ -358,35 +374,38 @@ export function Map2GIS({
                   position: relative;
                   z-index: 10;
                 `;
-                
+
                 // Добавляем номер или рейтинг
                 markerElement.textContent = p.score ? p.score.toFixed(1) : (index + 1).toString();
-                
+
                 // Hover эффект
                 markerElement.addEventListener('mouseenter', () => {
                   markerElement.style.transform = 'scale(1.15)';
-                  markerElement.style.boxShadow = '0 6px 20px rgba(0, 168, 90, 0.4), 0 2px 6px rgba(0, 0, 0, 0.15)';
+                  markerElement.style.boxShadow =
+                    '0 6px 20px rgba(0, 168, 90, 0.4), 0 2px 6px rgba(0, 0, 0, 0.15)';
                 });
-                
+
                 markerElement.addEventListener('mouseleave', () => {
                   markerElement.style.transform = 'scale(1)';
-                  markerElement.style.boxShadow = '0 3px 12px rgba(0, 168, 90, 0.3), 0 1px 3px rgba(0, 0, 0, 0.1)';
+                  markerElement.style.boxShadow =
+                    '0 3px 12px rgba(0, 168, 90, 0.3), 0 1px 3px rgba(0, 0, 0, 0.1)';
                 });
-                
+
                 // Анимация появления
                 markerElement.style.transform = 'scale(0)';
                 markerElement.style.opacity = '0';
-                
+
                 // Создаём HTML маркер
                 const marker = new mapglAPI.HtmlMarker(map!, {
                   coordinates: [p.lon, p.lat],
                   html: markerElement,
                   anchor: [0.5, 0.5],
                 });
-                
+
                 // Анимация появления с bounce
                 setTimeout(() => {
-                  markerElement.style.transition = 'all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                  markerElement.style.transition =
+                    'all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
                   markerElement.style.transform = 'scale(1)';
                   markerElement.style.opacity = '1';
                 }, 50);
@@ -397,7 +416,7 @@ export function Map2GIS({
                 // Обработчик клика на маркер с анимацией
                 markerElement.addEventListener('click', (e) => {
                   e.stopPropagation();
-                  
+
                   // Визуальная обратная связь
                   markerElement.style.transform = 'scale(0.9)';
                   setTimeout(() => {
@@ -406,24 +425,29 @@ export function Map2GIS({
                       markerElement.style.transform = 'scale(1)';
                     }, 100);
                   }, 100);
-                  
+
                   // Вызываем обработчик клика
                   handleMarkerClick(p, marker, popup, isPopupVisible);
                 });
-                
+
                 // Функция обработки клика по маркеру
-                const handleMarkerClick = (markerData: MarkerData, marker: any, currentPopup: any, currentIsPopupVisible: boolean) => {
+                const handleMarkerClick = (
+                  markerData: MarkerData,
+                  marker: any,
+                  currentPopup: any,
+                  currentIsPopupVisible: boolean
+                ) => {
                   try {
                     console.log('Клик по маркеру:', markerData.title);
-                    
+
                     // Закрываем все другие попапы
                     markersRef.current.forEach((m: any) => {
                       if (m.popup && m.popup !== currentPopup) {
                         try {
                           m.popup.destroy();
                         } catch {
-              // Игнорируем ошибки
-            }
+                          // Игнорируем ошибки
+                        }
                         m.isPopupVisible = false;
                       }
                     });
@@ -436,8 +460,8 @@ export function Map2GIS({
                         isPopupVisible = false;
                         console.log('Попап закрыт');
                       } catch {
-              // Игнорируем ошибки
-            }
+                        // Игнорируем ошибки
+                      }
                     } else {
                       // Создаём новый попап с данными из 2ГИС
                       try {
@@ -448,7 +472,7 @@ export function Map2GIS({
                         });
                         isPopupVisible = true;
                         console.log('Попап создан:', markerData.title);
-                        
+
                         // Плавное центрирование карты
                         if (map && map.setCenter) {
                           map.setCenter([markerData.lon, markerData.lat], { duration: 300 });
@@ -468,40 +492,43 @@ export function Map2GIS({
             });
 
             // Подгон карты на точки
-            setTimeout(() => {
-              try {
-                if (points.length >= 1 && map && map.setCenter) {
-                  // Центрируем по первой точке
-                  map.setCenter([points[0].lon, points[0].lat]);
-                  
-                  // Зум зависит от количества точек
-                  const targetZoom = points.length === 1 ? 15 : 13;
-                  if (map.setZoom) {
-                    map.setZoom(targetZoom, { duration: 800 });
+            setTimeout(
+              () => {
+                try {
+                  if (points.length >= 1 && map && map.setCenter) {
+                    // Центрируем по первой точке
+                    map.setCenter([points[0].lon, points[0].lat]);
+
+                    // Зум зависит от количества точек
+                    const targetZoom = points.length === 1 ? 15 : 13;
+                    if (map.setZoom) {
+                      map.setZoom(targetZoom, { duration: 800 });
+                    }
                   }
+                } catch (boundsErr) {
+                  console.error('Ошибка позиционирования карты:', boundsErr);
                 }
-              } catch (boundsErr) {
-                console.error('Ошибка позиционирования карты:', boundsErr);
-              }
-            }, points.length * 100 + 200);
+              },
+              points.length * 100 + 200
+            );
           } catch (err) {
             console.error('Ошибка добавления маркеров:', err);
           }
         };
 
         // Маршрут с анимацией
-        const drawRouteHandler = (e: CustomEvent) => {
+        const drawRouteHandler = (e: any) => {
           try {
             const coords: Array<[number, number]> = e.detail?.coordinates || [];
             const routeInfo = e.detail?.routeInfo;
             console.log('Рисуем маршрут с координатами:', coords);
             console.log('Информация о маршруте:', routeInfo);
-            
+
             if (!coords.length) {
               console.warn('Нет координат для маршрута');
               return;
             }
-            
+
             if (routeRef.current && routeRef.current.destroy) {
               routeRef.current.destroy();
             }
@@ -527,7 +554,7 @@ export function Map2GIS({
               if (coords.length >= 1 && coords[0] && map && map.setCenter) {
                 // Центрируем на первую точку маршрута
                 map.setCenter(coords[0]);
-                
+
                 // Зум зависит от длины маршрута
                 const targetZoom = coords.length === 1 ? 15 : 12;
                 if (map.setZoom) {
@@ -543,7 +570,7 @@ export function Map2GIS({
         };
 
         // Фокус на маркере
-        const focusMarkerHandler = (e: CustomEvent) => {
+        const focusMarkerHandler = (e: any) => {
           try {
             const { lon, lat, zoom = 16 } = e.detail || {};
             if (typeof lon === 'number' && typeof lat === 'number') {
@@ -559,7 +586,7 @@ export function Map2GIS({
         const clearMapHandler = () => {
           try {
             console.log('Очищаем карту...');
-            
+
             // Удаляем все маркеры
             markersRef.current.forEach((m: any) => {
               if (m.marker && m.marker.destroy) {
@@ -570,13 +597,13 @@ export function Map2GIS({
               }
             });
             markersRef.current = [];
-            
+
             // Удаляем маршрут
             if (routeRef.current && routeRef.current.destroy) {
               routeRef.current.destroy();
               routeRef.current = null;
             }
-            
+
             console.log('Карта очищена');
           } catch (err) {
             console.error('Ошибка очистки карты:', err);
@@ -584,11 +611,11 @@ export function Map2GIS({
         };
 
         // Обработчик показа подробной информации
-        const showDetailsHandler = (e: CustomEvent) => {
+        const showDetailsHandler = (e: any) => {
           try {
             const { id, data, original } = e.detail;
             console.log('Показываем подробную информацию для:', id, data);
-            
+
             // Создаём модальное окно в стиле 2ГИС
             const modal = document.createElement('div');
             modal.style.cssText = `
@@ -605,7 +632,7 @@ export function Map2GIS({
               padding: 16px;
               backdrop-filter: blur(4px);
             `;
-            
+
             const modalContent = document.createElement('div');
             modalContent.style.cssText = `
               background: #ffffff;
@@ -618,7 +645,7 @@ export function Map2GIS({
               box-shadow: 0 16px 32px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06);
               border: 1px solid rgba(0, 0, 0, 0.08);
             `;
-            
+
             modalContent.innerHTML = `
               <!-- Заголовок модального окна -->
               <div style="
@@ -652,14 +679,18 @@ export function Map2GIS({
                       font-weight: 600;
                       line-height: 1.3;
                     ">${data.name || original.title}</h2>
-                    ${data.address ? `
+                    ${
+                      data.address
+                        ? `
                       <p style="
                         margin: 2px 0 0 0;
                         color: #6b7280;
                         font-size: 13px;
                         line-height: 1.4;
                       ">${data.address}</p>
-                    ` : ''}
+                    `
+                        : ''
+                    }
                   </div>
                 </div>
                 <button onclick="this.closest('.modal').remove()" style="
@@ -682,13 +713,17 @@ export function Map2GIS({
               
               <!-- Контент модального окна -->
               <div style="padding: 20px; max-height: 50vh; overflow-y: auto;">
-                ${data.contacts?.phones?.length ? `
+                ${
+                  data.contacts?.phones?.length
+                    ? `
                   <div style="margin-bottom: 16px;">
                     <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
                       <span style="color: #00a85a; font-size: 12px;">📞</span>
                       <strong style="color: #374151; font-size: 13px; font-weight: 600;">Телефоны</strong>
                     </div>
-                    ${data.contacts.phones.map((phone: string) => `
+                    ${data.contacts.phones
+                      .map(
+                        (phone: string) => `
                       <a href="tel:${phone}" style="
                         color: #00a85a;
                         text-decoration: none;
@@ -698,17 +733,25 @@ export function Map2GIS({
                         padding: 2px 0;
                         transition: color 0.2s;
                       " onmouseover="this.style.color='#00bf6f'" onmouseout="this.style.color='#00a85a'">${phone}</a>
-                    `).join('')}
+                    `
+                      )
+                      .join('')}
                   </div>
-                ` : ''}
+                `
+                    : ''
+                }
                 
-                ${data.contacts?.websites?.length ? `
+                ${
+                  data.contacts?.websites?.length
+                    ? `
                   <div style="margin-bottom: 16px;">
                     <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
                       <span style="color: #00a85a; font-size: 12px;">🌐</span>
                       <strong style="color: #374151; font-size: 13px; font-weight: 600;">Сайты</strong>
                     </div>
-                    ${data.contacts.websites.map((website: string) => `
+                    ${data.contacts.websites
+                      .map(
+                        (website: string) => `
                       <a href="${website}" target="_blank" rel="noopener noreferrer" style="
                         color: #00a85a;
                         text-decoration: none;
@@ -718,11 +761,17 @@ export function Map2GIS({
                         padding: 2px 0;
                         transition: color 0.2s;
                       " onmouseover="this.style.color='#00bf6f'" onmouseout="this.style.color='#00a85a'">${website}</a>
-                    `).join('')}
+                    `
+                      )
+                      .join('')}
                   </div>
-                ` : ''}
+                `
+                    : ''
+                }
                 
-                ${data.rating?.value ? `
+                ${
+                  data.rating?.value
+                    ? `
                   <div style="margin-bottom: 16px;">
                     <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
                       <span style="color: #00a85a; font-size: 12px;">⭐</span>
@@ -733,9 +782,13 @@ export function Map2GIS({
                       ${data.rating.reviews ? `, ${data.rating.reviews} отзывов` : ''}
                     </p>
                   </div>
-                ` : ''}
+                `
+                    : ''
+                }
                 
-                ${data.schedule?.text ? `
+                ${
+                  data.schedule?.text
+                    ? `
                   <div style="margin-bottom: 16px;">
                     <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
                       <span style="color: #00a85a; font-size: 12px;">🕒</span>
@@ -743,7 +796,9 @@ export function Map2GIS({
                     </div>
                     <p style="margin: 0; color: #6b7280; font-size: 13px; line-height: 1.4;">${data.schedule.text}</p>
                   </div>
-                ` : ''}
+                `
+                    : ''
+                }
               </div>
               
               <!-- Кнопки -->
@@ -786,32 +841,31 @@ export function Map2GIS({
                 </button>
               </div>
             `;
-            
+
             modal.className = 'modal';
             modal.appendChild(modalContent);
             document.body.appendChild(modal);
-            
+
             // Закрытие по клику на фон
             modal.addEventListener('click', (e) => {
               if (e.target === modal) {
                 modal.remove();
               }
             });
-            
           } catch (err) {
             console.error('Ошибка показа подробной информации:', err);
           }
         };
 
-        window.addEventListener('map:add-markers', addMarkersHandler);
-        window.addEventListener('map:draw-route', drawRouteHandler);
-        window.addEventListener('map:focus-marker', focusMarkerHandler);
-        window.addEventListener('map:show-details', showDetailsHandler);
-        window.addEventListener('map:clear', clearMapHandler);
+        window.addEventListener('map:add-markers', addMarkersHandler as EventListener);
+        window.addEventListener('map:draw-route', drawRouteHandler as EventListener);
+        window.addEventListener('map:focus-marker', focusMarkerHandler as EventListener);
+        window.addEventListener('map:show-details', showDetailsHandler as EventListener);
+        window.addEventListener('map:clear', clearMapHandler as EventListener);
 
         // Добавляем обработчик клика по карте для закрытия попапов
         if (map) {
-          (map as Record<string, unknown>).on('click', handleMapClick);
+          (map as any).on('click', handleMapClick);
         }
 
         setIsLoading(false);
@@ -829,7 +883,6 @@ export function Map2GIS({
       try {
         if (window.matchMedia) {
           const mq = window.matchMedia('(prefers-color-scheme: dark)');
-          // @ts-expect-error not all browsers support removeEventListener signature
           if (mq.removeEventListener) {
             mq.removeEventListener('change', () => {});
           }

@@ -1,19 +1,19 @@
-import * as React from "react"
+import * as React from 'react';
 
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils';
 
-type InputProps = React.ComponentProps<"input"> & {
-  leftSection?: React.ReactNode
-  rightSection?: React.ReactNode
-}
+type InputProps = React.ComponentProps<'input'> & {
+  leftSection?: React.ReactNode;
+  rightSection?: React.ReactNode;
+};
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type = "text", leftSection, rightSection, ...props }, ref) => {
+  ({ className, type = 'text', leftSection, rightSection, ...props }, ref) => {
     return (
       <div
         className={cn(
           // container
-          "group relative w-full",
+          'group relative w-full',
           className
         )}
       >
@@ -22,8 +22,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           aria-hidden
           className="pointer-events-none absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 group-focus-within:opacity-100"
           style={{
-            boxShadow:
-              "0 0 0 2px rgba(0,0,0,0.02), 0 0 0 6px rgba(0,191,111,0.08)",
+            boxShadow: '0 0 0 2px rgba(0,0,0,0.02), 0 0 0 6px rgba(0,191,111,0.08)',
           }}
         />
 
@@ -38,13 +37,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           className={cn(
             // base
-            "h-14 w-full rounded-xl border bg-white/80 px-4 text-base text-zinc-900 shadow-sm outline-none transition-all duration-300 placeholder:text-zinc-400 backdrop-blur supports-[backdrop-filter]:bg-white/60 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:cursor-not-allowed disabled:opacity-50",
+            'h-14 w-full rounded-xl border bg-white/80 px-4 text-base text-zinc-900 shadow-sm outline-none transition-all duration-300 placeholder:text-zinc-400 backdrop-blur supports-[backdrop-filter]:bg-white/60 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:cursor-not-allowed disabled:opacity-50',
             // borders and hover
-            "border-zinc-200 hover:border-zinc-300 focus:border-primary-500/50",
+            'border-zinc-200 hover:border-zinc-300 focus:border-primary-500/50',
             // dark theme
-            "dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-white dark:placeholder:text-zinc-500 dark:hover:border-zinc-700 dark:focus:border-primary-500/50",
-            leftSection ? "pl-12" : "pl-4",
-            rightSection ? "pr-12" : "pr-4"
+            'dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-white dark:placeholder:text-zinc-500 dark:hover:border-zinc-700 dark:focus:border-primary-500/50',
+            leftSection ? 'pl-12' : 'pl-4',
+            rightSection ? 'pr-12' : 'pr-4'
           )}
           {...props}
         />
@@ -55,9 +54,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           </div>
         ) : null}
       </div>
-    )
+    );
   }
-)
-Input.displayName = "Input"
+);
+Input.displayName = 'Input';
 
-export { Input }
+export { Input };

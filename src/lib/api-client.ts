@@ -12,7 +12,7 @@ export interface ChatResponse {
   dialog_id: string;
   response: string;
   entities: string[];
-  ranked_complexes: Array<Record<string, any>>;
+  ranked_complexes: Array<Record<string, unknown>>;
   total_complexes: number;
 }
 
@@ -33,7 +33,7 @@ export interface AddressInfo {
 
 export interface RouteInfo {
   success: boolean;
-  route?: Record<string, any> | null;
+  route?: Record<string, unknown> | null;
 }
 
 export interface WebSearchResponse {
@@ -100,7 +100,7 @@ export class ApiClient {
     return res.json();
   }
 
-  async getDialogHistory(dialogId: string): Promise<any> {
+  async getDialogHistory(dialogId: string): Promise<unknown> {
     const res = await fetch(`${this.baseUrl}/api/chat/dialog/${dialogId}`, {
       method: 'GET',
     });
@@ -108,7 +108,7 @@ export class ApiClient {
     return res.json();
   }
 
-  async deleteDialog(dialogId: string): Promise<any> {
+  async deleteDialog(dialogId: string): Promise<unknown> {
     const res = await fetch(`${this.baseUrl}/api/chat/dialog/${dialogId}`, {
       method: 'DELETE',
     });
@@ -155,8 +155,10 @@ export class ApiClient {
     const url = new URL(`${this.baseUrl}/api/search/entities/city`);
     url.searchParams.set('query', params.query);
     if (params.city) url.searchParams.set('city', String(params.city));
-    if (typeof params.user_lon === 'number') url.searchParams.set('user_lon', String(params.user_lon));
-    if (typeof params.user_lat === 'number') url.searchParams.set('user_lat', String(params.user_lat));
+    if (typeof params.user_lon === 'number')
+      url.searchParams.set('user_lon', String(params.user_lon));
+    if (typeof params.user_lat === 'number')
+      url.searchParams.set('user_lat', String(params.user_lat));
     const res = await fetch(url.toString(), { method: 'POST' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
@@ -174,4 +176,3 @@ export class ApiClient {
 }
 
 export const apiClient = new ApiClient();
-

@@ -73,7 +73,7 @@ export const ComplexesModule: React.FC<ComplexesModuleProps> = ({ items, entitie
           480: { slidesPerView: 1.2 },
           640: { slidesPerView: 1.6 },
           860: { slidesPerView: 2.2 },
-          1024: { slidesPerView: 2.8 }
+          1024: { slidesPerView: 2.8 },
         }}
         className="px-1"
       >
@@ -97,9 +97,13 @@ export const ComplexesModule: React.FC<ComplexesModuleProps> = ({ items, entitie
                             <Buildings size={24} weight="fill" />
                           </div>
                           <div className="w-full space-y-1">
-                            <div className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-900 dark:text-white">{complex.name}</div>
+                            <div className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-900 dark:text-white">
+                              {complex.name}
+                            </div>
                             {complex.address && (
-                              <div className="line-clamp-2 text-xs leading-snug text-zinc-500 dark:text-zinc-400">{complex.address}</div>
+                              <div className="line-clamp-2 text-xs leading-snug text-zinc-500 dark:text-zinc-400">
+                                {complex.address}
+                              </div>
                             )}
                             {complex.score !== undefined && (
                               <div className="mt-1.5 inline-flex items-center gap-1 rounded bg-primary-500 px-2 py-0.5 text-xs font-medium text-white">
@@ -122,7 +126,9 @@ export const ComplexesModule: React.FC<ComplexesModuleProps> = ({ items, entitie
                             <Buildings size={16} weight="fill" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="mb-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{complex.name}</div>
+                            <div className="mb-0.5 text-sm font-semibold text-zinc-900 dark:text-white">
+                              {complex.name}
+                            </div>
                             {complex.address && (
                               <div className="flex items-start gap-1 text-xs text-zinc-500 dark:text-zinc-400">
                                 <MapPin size={12} weight="fill" className="mt-0.5 flex-shrink-0" />
@@ -153,24 +159,28 @@ export const ComplexesModule: React.FC<ComplexesModuleProps> = ({ items, entitie
                 </HoverCard.Root>
               ) : (
                 <div className="h-full cursor-pointer" onClick={() => handleCardClick(complex)}>
-                <Card className="relative h-full w-full rounded-lg border border-zinc-200 bg-white p-0 shadow-sm hover:shadow-md hover:border-primary-500 transition-all dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-primary-500">
-                  <div className="relative flex h-full flex-col items-center justify-center gap-2.5 p-4 text-center">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-500 text-white">
-                      <Buildings size={24} weight="fill" />
-                    </div>
-                    <div className="w-full space-y-1">
-                      <div className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-900 dark:text-white">{complex.name}</div>
-                      {complex.address && (
-                        <div className="line-clamp-2 text-xs leading-snug text-zinc-500 dark:text-zinc-400">{complex.address}</div>
-                      )}
-                      {complex.score !== undefined && (
-                        <div className="mt-1.5 inline-flex items-center gap-1 rounded bg-primary-500 px-2 py-0.5 text-xs font-medium text-white">
-                          {complex.score.toFixed(1)}
+                  <Card className="relative h-full w-full rounded-lg border border-zinc-200 bg-white p-0 shadow-sm hover:shadow-md hover:border-primary-500 transition-all dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-primary-500">
+                    <div className="relative flex h-full flex-col items-center justify-center gap-2.5 p-4 text-center">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-500 text-white">
+                        <Buildings size={24} weight="fill" />
+                      </div>
+                      <div className="w-full space-y-1">
+                        <div className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-900 dark:text-white">
+                          {complex.name}
                         </div>
-                      )}
+                        {complex.address && (
+                          <div className="line-clamp-2 text-xs leading-snug text-zinc-500 dark:text-zinc-400">
+                            {complex.address}
+                          </div>
+                        )}
+                        {complex.score !== undefined && (
+                          <div className="mt-1.5 inline-flex items-center gap-1 rounded bg-primary-500 px-2 py-0.5 text-xs font-medium text-white">
+                            {complex.score.toFixed(1)}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
                 </div>
               )}
             </motion.div>
@@ -180,4 +190,3 @@ export const ComplexesModule: React.FC<ComplexesModuleProps> = ({ items, entitie
     </div>
   );
 };
-
