@@ -28,49 +28,49 @@ export interface MessageBubbleProps {
 
 // Тайпрайтер с несколькими сценариями "думанья"
 // const ThinkingTypewriter: React.FC = () => {
-  const phrases = React.useMemo(
-    () => [
-      'Анализирую запрос…',
-      'Сверяю с картой и рейтингами…',
-      'Фильтрую по расстоянию…',
-      'Проверяю часы работы…',
-      'Подбираю лучшие варианты…',
-    ],
-    []
-  );
-  const [phraseIndex, setPhraseIndex] = React.useState(0);
-  const [text, setText] = React.useState('');
-  const [isDeleting, setIsDeleting] = React.useState(false);
+//   const phrases = React.useMemo(
+//     () => [
+//       'Анализирую запрос…',
+//       'Сверяю с картой и рейтингами…',
+//       'Фильтрую по расстоянию…',
+//       'Проверяю часы работы…',
+//       'Подбираю лучшие варианты…',
+//     ],
+//     []
+//   );
+//   const [phraseIndex, setPhraseIndex] = React.useState(0);
+//   const [text, setText] = React.useState('');
+//   const [isDeleting, setIsDeleting] = React.useState(false);
 
-  React.useEffect(() => {
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    const current = phrases[phraseIndex % phrases.length] || '';
-    if (!isDeleting && text.length < current.length) {
-      timer = setTimeout(() => setText(current.slice(0, text.length + 1)), 36);
-    } else if (!isDeleting && text.length === current.length) {
-      timer = setTimeout(() => setIsDeleting(true), 650);
-    } else if (isDeleting && text.length > 0) {
-      timer = setTimeout(() => setText(current.slice(0, text.length - 1)), 20);
-    } else if (isDeleting && text.length === 0) {
-      setIsDeleting(false);
-      setPhraseIndex((i) => (i + 1) % phrases.length);
-    }
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, [text, isDeleting, phraseIndex, phrases]);
+//   React.useEffect(() => {
+//     let timer: ReturnType<typeof setTimeout> | null = null;
+//     const current = phrases[phraseIndex % phrases.length] || '';
+//     if (!isDeleting && text.length < current.length) {
+//       timer = setTimeout(() => setText(current.slice(0, text.length + 1)), 36);
+//     } else if (!isDeleting && text.length === current.length) {
+//       timer = setTimeout(() => setIsDeleting(true), 650);
+//     } else if (isDeleting && text.length > 0) {
+//       timer = setTimeout(() => setText(current.slice(0, text.length - 1)), 20);
+//     } else if (isDeleting && text.length === 0) {
+//       setIsDeleting(false);
+//       setPhraseIndex((i) => (i + 1) % phrases.length);
+//     }
+//     return () => {
+//       if (timer) clearTimeout(timer);
+//     };
+//   }, [text, isDeleting, phraseIndex, phrases]);
 
-  return (
-    <span className="relative inline-flex min-h-[1em] items-center">
-      <span className="whitespace-pre">{text}</span>
-      <motion.span 
-        className="ml-1 h-4 w-0.5 bg-current"
-        animate={{ opacity: [1, 0, 1] }}
-        transition={{ duration: 0.8, repeat: Infinity }}
-      />
-    </span>
-  );
-};
+//   return (
+//     <span className="relative inline-flex min-h-[1em] items-center">
+//       <span className="whitespace-pre">{text}</span>
+//       <motion.span 
+//         className="ml-1 h-4 w-0.5 bg-current"
+//         animate={{ opacity: [1, 0, 1] }}
+//         transition={{ duration: 0.8, repeat: Infinity }}
+//       />
+//     </span>
+//   );
+// };
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const isUser = message.role === 'user';
