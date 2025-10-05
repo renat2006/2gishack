@@ -12,7 +12,10 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
 }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, variant = 'modern', size = 'md', minRows = 1, maxRows = 6, ...props }, ref) => {
+  (
+    { className, variant = 'modern', size = 'md', minRows = 1, maxRows = 6, _style, ...props },
+    ref
+  ) => {
     const baseClasses = 'group relative w-full resize-none transition-all duration-300 ease-out';
 
     const variantClasses = {

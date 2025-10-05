@@ -23,6 +23,7 @@ const TextareaNew = React.forwardRef<HTMLTextAreaElement, TextareaNewProps>(
       rightActions,
       minRows = 1,
       maxRows = 6,
+      _style,
       ...props
     },
     ref
