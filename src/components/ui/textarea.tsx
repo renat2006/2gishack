@@ -4,7 +4,8 @@ import React from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { cn } from '@/lib/utils';
 
-export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+export interface TextareaProps
+  extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'style'> {
   variant?: 'default' | 'modern' | 'glass';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   minRows?: number;
@@ -12,10 +13,7 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
 }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  (
-    { className, variant = 'modern', size = 'md', minRows = 1, maxRows = 6, _style, ...restProps },
-    ref
-  ) => {
+  ({ className, variant = 'modern', size = 'md', minRows = 1, maxRows = 6, ...restProps }, ref) => {
     // Исключаем style из пропсов для TextareaAutosize
     const props = restProps;
     const baseClasses = 'group relative w-full resize-none transition-all duration-300 ease-out';

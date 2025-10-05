@@ -4,7 +4,8 @@ import React from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { cn } from '@/lib/utils';
 
-export interface TextareaNewProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+export interface TextareaNewProps
+  extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'style'> {
   variant?: 'default' | 'modern' | 'glass';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   leftIcon?: React.ReactNode;
@@ -23,7 +24,6 @@ const TextareaNew = React.forwardRef<HTMLTextAreaElement, TextareaNewProps>(
       rightActions,
       minRows = 1,
       maxRows = 6,
-      _style,
       ...restProps
     },
     ref
