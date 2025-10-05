@@ -75,6 +75,7 @@ export interface MessageBubbleProps {
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const isUser = message.role === 'user';
   // const isTyping = false;
+  // Updated: removed duplicate badge display
 
   return (
     <motion.div
@@ -90,7 +91,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
               <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Вы</span>
             ) : (
               <span className="text-xs font-medium text-primary-600 dark:text-primary-400">
-                Ассистент
+                Gispy
               </span>
             )}
           </div>

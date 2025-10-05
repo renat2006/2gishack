@@ -363,3 +363,47 @@ body {
     padding: var(--spacing-lg);
   }
 }
+
+/* Мобильные улучшения для чатбота */
+@media (max-width: 768px) {
+  /* Улучшения для touch устройств */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Предотвращение зума на iOS */
+  input[type='text'],
+  input[type='email'],
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Улучшения для drawer */
+  [data-vaul-drawer] {
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  }
+
+  /* Компактные кнопки на мобильных */
+  .mobile-compact {
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+  }
+
+  /* Улучшения для скролла */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+}
+
+/* Улучшения для очень маленьких экранов */
+@media (max-width: 375px) {
+  /* Еще более компактные элементы */
+  .ultra-compact {
+    padding: 6px 8px !important;
+    font-size: 13px !important;
+  }
+}

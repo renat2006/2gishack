@@ -56,6 +56,8 @@ const TextareaReady = React.forwardRef<HTMLTextAreaElement, TextareaReadyProps>(
         className={cn(
           'w-full resize-none transition-all duration-300 ease-out',
           'outline-none max-h-32 overflow-y-auto',
+          'touch-manipulation', // Улучшает touch на мобильных
+          'text-base', // Предотвращает зум на iOS
           variantClasses[variant],
           sizeClasses[size],
           'placeholder:text-zinc-400 dark:placeholder:text-zinc-500',
@@ -68,6 +70,9 @@ const TextareaReady = React.forwardRef<HTMLTextAreaElement, TextareaReadyProps>(
         style={{
           ...paddingStyles[size],
           ...props.style,
+          // Улучшения для мобильных
+          WebkitAppearance: 'none',
+          borderRadius: 'inherit',
         }}
         {...(props as any)}
       />

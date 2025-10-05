@@ -37,24 +37,25 @@ const DrawerContent = React.forwardRef<
     <DrawerOverlay />
     <DrawerPrimitive.Content
       ref={ref}
-      className={`fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto max-h-[90%] flex-col rounded-t-lg bg-white ring-1 ring-zinc-200 shadow-none dark:bg-zinc-900 dark:ring-zinc-800 ${className || ''}`}
+      className={`fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto max-h-[95vh] flex-col rounded-t-lg bg-white ring-1 ring-zinc-200 shadow-none dark:bg-zinc-900 dark:ring-zinc-800 ${className || ''}`}
       style={{
-        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1.5rem)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.5rem)',
         animation: 'drawer-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+        minHeight: '60vh',
       }}
       {...props}
     >
       {/* Handle bar - минималистичный */}
-      <div className="mx-auto mt-4 mb-6 h-1.5 w-12 flex-shrink-0 rounded-full bg-zinc-300 dark:bg-zinc-600" />
+      <div className="mx-auto mt-3 mb-4 h-1 w-8 flex-shrink-0 rounded-full bg-zinc-300 dark:bg-zinc-600" />
 
       {/* Основной контент с современными отступами */}
       <div
-        className="flex flex-col gap-4 overflow-y-auto scrollbar-hide"
+        className="flex flex-col flex-1 min-h-0 overflow-hidden"
         style={{
-          paddingLeft: '24px',
-          paddingRight: '24px',
-          paddingBottom: '24px',
-          paddingTop: '16px',
+          paddingLeft: '16px',
+          paddingRight: '16px',
+          paddingBottom: '16px',
+          paddingTop: '8px',
           boxSizing: 'border-box',
         }}
       >
