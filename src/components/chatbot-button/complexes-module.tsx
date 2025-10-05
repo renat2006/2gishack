@@ -17,7 +17,7 @@ export interface ComplexesModuleProps {
   entities?: string[];
 }
 
-export const ComplexesModule: React.FC<ComplexesModuleProps> = ({ items, entities }) => {
+export const ComplexesModule: React.FC<ComplexesModuleProps> = ({ items, entities: _entities }) => {
   const [isHoverable, setIsHoverable] = React.useState(false);
 
   React.useEffect(() => {
@@ -47,20 +47,7 @@ export const ComplexesModule: React.FC<ComplexesModuleProps> = ({ items, entitie
   };
 
   return (
-    <div className="w-full space-y-2">
-      {entities && entities.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {entities.map((ent, i) => (
-            <span
-              key={i}
-              className="inline-flex items-center rounded bg-primary-500 px-2 py-0.5 text-xs font-medium text-white"
-            >
-              {ent}
-            </span>
-          ))}
-        </div>
-      )}
-
+    <div className="w-full">
       <Swiper
         modules={[EffectCoverflow, Pagination]}
         grabCursor
