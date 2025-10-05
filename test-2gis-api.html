@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест API 2ГИС</title>
+</head>
+<body>
+    <h1>Тест API 2ГИС Routing</h1>
+    <button id="testBtn">Тестировать API</button>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('testBtn').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Тестируем...';
+            
+            try {
+                // Тестовые координаты (Москва) - из вашего примера
+                const testPoints = [
+                    { lat: 55.75070197975061, lon: 37.62627883178469 },
+                    { lat: 55.73210683357036, lon: 37.60401498578307 }
+                ];
+                
+                const apiKey = 'YOUR_API_KEY_HERE'; // Замените на ваш API ключ
+                const url = `https://routing.api.2gis.com/routing/7.0.0/global?key=${apiKey}`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        points: testPoints,
+                        transport: 'car'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    const errorText = await response.text();
+                    resultDiv.innerHTML = `Ошибка: ${response.status} - ${errorText}`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `Ошибка: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

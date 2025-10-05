@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import { PWAWrapper } from '@/components';
 import '@/styles/globals.css';
 
 const inter = Inter({
@@ -50,10 +49,9 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <link rel="apple-touch-icon" href="/icons/icon-152x152.png" />
+        <link rel="stylesheet" href="https://mapgl.2gis.com/api/js/v1/mapgl.css" />
       </head>
-      <body>
-        <PWAWrapper>{children}</PWAWrapper>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

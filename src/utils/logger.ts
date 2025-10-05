@@ -11,9 +11,11 @@ class Logger {
 
     switch (level) {
       case 'debug':
+        // eslint-disable-next-line no-console
         console.debug(logMessage, data);
         break;
       case 'info':
+        // eslint-disable-next-line no-console
         console.info(logMessage, data);
         break;
       case 'warn':
