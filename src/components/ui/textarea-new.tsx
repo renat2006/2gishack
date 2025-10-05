@@ -24,10 +24,12 @@ const TextareaNew = React.forwardRef<HTMLTextAreaElement, TextareaNewProps>(
       minRows = 1,
       maxRows = 6,
       _style,
-      ...props
+      ...restProps
     },
     ref
   ) => {
+    // Исключаем style из пропсов для TextareaAutosize
+    const props = restProps;
     const baseClasses = 'group relative w-full resize-none transition-all duration-300 ease-out';
 
     const variantClasses = {
