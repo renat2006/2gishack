@@ -1,4 +1,6 @@
 export type * from './pwa';
+export type * from './place';
+export type * from './chat';
 
 export interface AppConfig {
   name: string;
