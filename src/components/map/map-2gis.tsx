@@ -123,207 +123,6 @@ export function Map2GIS({
           };
         };
 
-        // Хелпер для создания HTML попапа в стиле 2ГИС
-        const createPopupHTML = (data: MarkerData) => {
-          return `
-          <div style="
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
-            padding: 0;
-            min-width: 280px;
-            max-width: 320px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            position: relative;
-            overflow: hidden;
-          ">
-            <!-- Заголовок в стиле 2ГИС -->
-            <div style="
-              background: #f8f9fa;
-              border-bottom: 1px solid #e5e7eb;
-              padding: 16px;
-              display: flex;
-              align-items: center;
-              gap: 12px;
-            ">
-              <div style="
-                width: 36px;
-                height: 36px;
-                border-radius: 8px;
-                background: #00a85a;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-weight: 600;
-                font-size: 14px;
-                flex-shrink: 0;
-              ">
-                ${data.score ? data.score.toFixed(1) : '★'}
-              </div>
-              <div style="flex: 1; min-width: 0;">
-                <div style="
-                  font-weight: 600;
-                  font-size: 16px;
-                  color: #1f2937;
-                  margin-bottom: 4px;
-                  line-height: 1.3;
-                ">
-                  ${data.title || 'Жилой комплекс'}
-                </div>
-                ${
-                  data.address
-                    ? `
-                  <div style="
-                    font-size: 13px;
-                    color: #6b7280;
-                    line-height: 1.4;
-                  ">
-                    ${data.address}
-                  </div>
-                `
-                    : ''
-                }
-              </div>
-            </div>
-            
-            <!-- Контент -->
-            <div style="padding: 16px;">
-              <!-- Информационные блоки в стиле 2ГИС -->
-              <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
-                ${
-                  data.score
-                    ? `
-                  <div style="
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 4px;
-                    background: #f0fdf4;
-                    color: #166534;
-                    padding: 6px 10px;
-                    border-radius: 6px;
-                    font-size: 12px;
-                    font-weight: 500;
-                    border: 1px solid #bbf7d0;
-                  ">
-                    <span style="font-size: 12px;">★</span>
-                    <span>${data.score.toFixed(1)}</span>
-                  </div>
-                `
-                    : ''
-                }
-                
-                ${
-                  data.distance
-                    ? `
-                  <div style="
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 4px;
-                    background: #f0f9ff;
-                    color: #1e40af;
-                    padding: 6px 10px;
-                    border-radius: 6px;
-                    font-size: 12px;
-                    font-weight: 500;
-                    border: 1px solid #bfdbfe;
-                  ">
-                    <span style="font-size: 12px;">🚶</span>
-                    <span>${(data.distance / 1000).toFixed(1)} км</span>
-                  </div>
-                `
-                    : ''
-                }
-              </div>
-              
-              <!-- Кнопки в стиле 2ГИС -->
-              <div style="display: flex; gap: 8px;">
-                ${
-                  data.website
-                    ? `
-                  <a href="${data.website}" target="_blank" rel="noopener noreferrer" 
-                     style="
-                       flex: 1;
-                       display: inline-flex; 
-                       align-items: center; 
-                       justify-content: center;
-                       gap: 6px; 
-                       font-size: 13px; 
-                       color: #00a85a; 
-                       text-decoration: none; 
-                       font-weight: 500; 
-                       padding: 10px 12px;
-                       background: #f0fdf4;
-                       border: 1px solid #bbf7d0;
-                       border-radius: 8px;
-                       transition: all 0.15s;
-                     "
-                     onmouseover="this.style.background='#dcfce7'; this.style.borderColor='#86efac'"
-                     onmouseout="this.style.background='#f0fdf4'; this.style.borderColor='#bbf7d0'"
-                  >
-                    <span style="font-size: 12px;">🌐</span>
-                    <span>Сайт</span>
-                  </a>
-                `
-                    : ''
-                }
-                
-                <button 
-                  onclick="
-                    console.log('Клик по кнопке Подробнее:', '${data.id || ''}');
-                    // Загружаем подробную информацию из 2ГИС
-                    fetch('/api/2gis/details', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        title: '${data.title || ''}',
-                        lon: ${data.lon},
-                        lat: ${data.lat},
-                        id: '${data.id || ''}'
-                      })
-                    })
-                    .then(res => res.json())
-                    .then(details => {
-                      console.log('Подробная информация:', details);
-                      // Показываем модальное окно с подробной информацией
-                      window.dispatchEvent(new CustomEvent('map:show-details', { 
-                        detail: { 
-                          id: '${data.id || ''}',
-                          data: details,
-                          original: ${JSON.stringify(data)}
-                        } 
-                      }));
-                    })
-                    .catch(err => {
-                      console.error('Ошибка загрузки подробной информации:', err);
-                      // Fallback - просто фокусируемся на маркере
-                      window.dispatchEvent(new CustomEvent('map:focus-place', { detail: { id: '${data.id || ''}' } }));
-                    });
-                  "
-                  style="
-                    flex: 1;
-                    padding: 10px 12px; 
-                    background: #00a85a;
-                    border: none; 
-                    border-radius: 8px; 
-                    color: white; 
-                    font-size: 13px; 
-                    font-weight: 500; 
-                    cursor: pointer; 
-                    transition: all 0.15s;
-                  "
-                  onmouseover="this.style.background='#00bf6f'"
-                  onmouseout="this.style.background='#00a85a'"
-                >
-                  Подробнее
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-        };
-
         // Обработчик клика по карте для закрытия попапов
         const handleMapClick = () => {
           try {
@@ -410,8 +209,8 @@ export function Map2GIS({
                   markerElement.style.opacity = '1';
                 }, 50);
 
-                let popup: any = null;
-                let isPopupVisible = false;
+                const popup: any = null;
+                const isPopupVisible = false;
 
                 // Обработчик клика на маркер с анимацией
                 markerElement.addEventListener('click', (e) => {
@@ -433,16 +232,16 @@ export function Map2GIS({
                 // Функция обработки клика по маркеру
                 const handleMarkerClick = (
                   markerData: MarkerData,
-                  marker: any,
-                  currentPopup: any,
-                  currentIsPopupVisible: boolean
+                  _marker: any,
+                  _currentPopup: any,
+                  _currentIsPopupVisible: boolean
                 ) => {
                   try {
-                    console.log('Клик по маркеру:', markerData.title);
+                    console.warn('Клик по маркеру:', markerData.title);
 
-                    // Закрываем все другие попапы
+                    // Закрываем все попапы
                     markersRef.current.forEach((m: any) => {
-                      if (m.popup && m.popup !== currentPopup) {
+                      if (m.popup) {
                         try {
                           m.popup.destroy();
                         } catch {
@@ -452,36 +251,57 @@ export function Map2GIS({
                       }
                     });
 
-                    // Переключаем текущий попап
-                    if (currentIsPopupVisible && currentPopup) {
-                      try {
-                        currentPopup.destroy();
-                        popup = null;
-                        isPopupVisible = false;
-                        console.log('Попап закрыт');
-                      } catch {
-                        // Игнорируем ошибки
-                      }
-                    } else {
-                      // Создаём новый попап с данными из 2ГИС
-                      try {
-                        popup = new mapglAPI.HtmlMarker(map!, {
-                          coordinates: [markerData.lon, markerData.lat],
-                          html: createPopupHTML(markerData),
-                          anchor: [0, -40],
-                        });
-                        isPopupVisible = true;
-                        console.log('Попап создан:', markerData.title);
-
-                        // Плавное центрирование карты
-                        if (map && map.setCenter) {
-                          map.setCenter([markerData.lon, markerData.lat], { duration: 300 });
-                          if (map.setZoom) map.setZoom(16, { duration: 300 });
-                        }
-                      } catch (popupErr) {
-                        console.error('Ошибка создания попапа:', popupErr);
-                      }
+                    // Плавное центрирование карты
+                    if (map && map.setCenter) {
+                      map.setCenter([markerData.lon, markerData.lat], { duration: 300 });
+                      if (map.setZoom) map.setZoom(16, { duration: 300 });
                     }
+
+                    // Открываем модальное окно вместо попапа
+                    console.warn('Открываем модальное окно для:', markerData.title);
+
+                    // Загружаем подробную информацию из 2ГИС
+                    fetch('/api/2gis/details', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        title: markerData.title || '',
+                        lon: markerData.lon,
+                        lat: markerData.lat,
+                        id: markerData.id || '',
+                      }),
+                    })
+                      .then((res) => res.json())
+                      .then((details) => {
+                        console.warn('Подробная информация:', details);
+                        // Показываем модальное окно с подробной информацией
+                        window.dispatchEvent(
+                          new CustomEvent('map:show-details', {
+                            detail: {
+                              id: markerData.id || '',
+                              data: details,
+                              original: markerData,
+                            },
+                          })
+                        );
+                      })
+                      .catch((err) => {
+                        console.error('Ошибка загрузки подробной информации:', err);
+                        // Fallback - показываем модальное окно с базовой информацией
+                        window.dispatchEvent(
+                          new CustomEvent('map:show-details', {
+                            detail: {
+                              id: markerData.id || '',
+                              data: {
+                                name: markerData.title,
+                                address: markerData.address,
+                                rating: markerData.score ? { value: markerData.score } : null,
+                              },
+                              original: markerData,
+                            },
+                          })
+                        );
+                      });
                   } catch (err) {
                     console.error('Ошибка клика на маркер:', err);
                   }
@@ -521,8 +341,8 @@ export function Map2GIS({
           try {
             const coords: Array<[number, number]> = e.detail?.coordinates || [];
             const routeInfo = e.detail?.routeInfo;
-            console.log('Рисуем маршрут с координатами:', coords);
-            console.log('Информация о маршруте:', routeInfo);
+            console.warn('Рисуем маршрут с координатами:', coords);
+            console.warn('Информация о маршруте:', routeInfo);
 
             if (!coords.length) {
               console.warn('Нет координат для маршрута');
@@ -544,10 +364,10 @@ export function Map2GIS({
             });
             routeRef.current = polyline;
 
-            console.log('Маршрут создан, начинаем анимацию');
+            console.warn('Маршрут создан, начинаем анимацию');
 
             // Маршрут создан и отображается
-            console.log('Маршрут отображен на карте');
+            console.warn('Маршрут отображен на карте');
 
             // Подгон под маршрут
             try {
@@ -585,7 +405,7 @@ export function Map2GIS({
         // Очистка карты
         const clearMapHandler = () => {
           try {
-            console.log('Очищаем карту...');
+            console.warn('Очищаем карту...');
 
             // Удаляем все маркеры
             markersRef.current.forEach((m: any) => {
@@ -604,252 +424,200 @@ export function Map2GIS({
               routeRef.current = null;
             }
 
-            console.log('Карта очищена');
+            console.warn('Карта очищена');
           } catch (err) {
             console.error('Ошибка очистки карты:', err);
           }
         };
 
-        // Обработчик показа подробной информации
-        const showDetailsHandler = (e: any) => {
+        // Обработчик показа подробной информации с SweetAlert2
+        const showDetailsHandler = async (e: any) => {
           try {
             const { id, data, original } = e.detail;
-            console.log('Показываем подробную информацию для:', id, data);
+            console.warn('Показываем подробную информацию для:', id, data);
 
-            // Создаём модальное окно в стиле 2ГИС
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-              position: fixed;
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 100%;
-              background: rgba(0, 0, 0, 0.4);
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              z-index: 1000;
-              padding: 16px;
-              backdrop-filter: blur(4px);
-            `;
+            // Импортируем SweetAlert2 динамически
+            const Swal = (await import('sweetalert2')).default;
 
-            const modalContent = document.createElement('div');
-            modalContent.style.cssText = `
-              background: #ffffff;
-              border-radius: 12px;
-              padding: 0;
-              max-width: 400px;
-              width: 100%;
-              max-height: 80vh;
-              overflow: hidden;
-              box-shadow: 0 16px 32px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06);
-              border: 1px solid rgba(0, 0, 0, 0.08);
-            `;
+            // Создаем HTML контент для модального окна в темной теме
+            const createModalContent = (data: any, original: any) => {
+              console.warn('Данные из API:', data);
+              console.warn('Оригинальные данные:', original);
 
-            modalContent.innerHTML = `
-              <!-- Заголовок модального окна -->
-              <div style="
-                background: #f8f9fa;
-                border-bottom: 1px solid #e5e7eb;
-                padding: 16px 20px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-              ">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                  <div style="
-                    width: 32px;
-                    height: 32px;
-                    border-radius: 6px;
-                    background: #00a85a;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: white;
-                    font-weight: 600;
-                    font-size: 14px;
-                  ">
-                    ${data.rating?.value ? data.rating.value.toFixed(1) : '★'}
+              let content = `
+                <div style="text-align: left; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #f3f4f6;">
+                  <div style="margin-bottom: 20px;">
+                    ${data.address ? `<p style="margin: 0 0 8px 0; color: #d1d5db; font-size: 14px;">${data.address}</p>` : ''}
                   </div>
-                  <div>
-                    <h2 style="
-                      margin: 0;
-                      color: #1f2937;
-                      font-size: 16px;
-                      font-weight: 600;
-                      line-height: 1.3;
-                    ">${data.name || original.title}</h2>
-                    ${
-                      data.address
-                        ? `
-                      <p style="
-                        margin: 2px 0 0 0;
-                        color: #6b7280;
-                        font-size: 13px;
-                        line-height: 1.4;
-                      ">${data.address}</p>
-                    `
-                        : ''
-                    }
+              `;
+
+              // Изображение
+              if (data.photos?.length > 0) {
+                content += `
+                  <div style="margin-bottom: 20px;">
+                    <img src="${data.photos[0].image_url}" alt="${data.name || original.title}" 
+                         style="width: 100%; height: 200px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">
                   </div>
-                </div>
-                <button onclick="this.closest('.modal').remove()" style="
-                  background: none;
-                  border: none;
-                  width: 28px;
-                  height: 28px;
-                  border-radius: 4px;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  cursor: pointer;
-                  color: #6b7280;
-                  font-size: 18px;
-                  transition: all 0.2s;
-                " onmouseover="this.style.background='#f3f4f6'; this.style.color='#374151'" onmouseout="this.style.background='none'; this.style.color='#6b7280'">
-                  ×
-                </button>
-              </div>
-              
-              <!-- Контент модального окна -->
-              <div style="padding: 20px; max-height: 50vh; overflow-y: auto;">
-                ${
-                  data.contacts?.phones?.length
-                    ? `
+                `;
+              }
+
+              // Телефоны
+              if (data.contacts?.phones?.length) {
+                content += `
                   <div style="margin-bottom: 16px;">
-                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
-                      <span style="color: #00a85a; font-size: 12px;">📞</span>
-                      <strong style="color: #374151; font-size: 13px; font-weight: 600;">Телефоны</strong>
-                    </div>
+                    <h4 style="margin: 0 0 8px 0; color: #ffffff; font-size: 14px; font-weight: 600;">📞 Телефоны</h4>
                     ${data.contacts.phones
                       .map(
-                        (phone: string) => `
-                      <a href="tel:${phone}" style="
-                        color: #00a85a;
-                        text-decoration: none;
-                        display: block;
-                        margin-bottom: 2px;
-                        font-size: 13px;
-                        padding: 2px 0;
-                        transition: color 0.2s;
-                      " onmouseover="this.style.color='#00bf6f'" onmouseout="this.style.color='#00a85a'">${phone}</a>
-                    `
+                        (phone: string) =>
+                          `<a href="tel:${phone}" style="display: block; color: #10b981; text-decoration: none; margin-bottom: 4px; font-size: 14px; padding: 4px 0;">${phone}</a>`
                       )
                       .join('')}
                   </div>
-                `
-                    : ''
-                }
-                
-                ${
-                  data.contacts?.websites?.length
-                    ? `
+                `;
+              }
+
+              // Сайты
+              if (data.contacts?.websites?.length) {
+                content += `
                   <div style="margin-bottom: 16px;">
-                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
-                      <span style="color: #00a85a; font-size: 12px;">🌐</span>
-                      <strong style="color: #374151; font-size: 13px; font-weight: 600;">Сайты</strong>
-                    </div>
+                    <h4 style="margin: 0 0 8px 0; color: #ffffff; font-size: 14px; font-weight: 600;">🌐 Сайты</h4>
                     ${data.contacts.websites
                       .map(
-                        (website: string) => `
-                      <a href="${website}" target="_blank" rel="noopener noreferrer" style="
-                        color: #00a85a;
-                        text-decoration: none;
-                        display: block;
-                        margin-bottom: 2px;
-                        font-size: 13px;
-                        padding: 2px 0;
-                        transition: color 0.2s;
-                      " onmouseover="this.style.color='#00bf6f'" onmouseout="this.style.color='#00a85a'">${website}</a>
-                    `
+                        (website: string) =>
+                          `<a href="${website}" target="_blank" rel="noopener noreferrer" style="display: block; color: #3b82f6; text-decoration: none; margin-bottom: 4px; font-size: 14px; padding: 4px 0;">${website}</a>`
                       )
                       .join('')}
                   </div>
-                `
-                    : ''
-                }
-                
-                ${
-                  data.rating?.value
-                    ? `
+                `;
+              }
+
+              // Рейтинг
+              if (data.rating?.value) {
+                content += `
                   <div style="margin-bottom: 16px;">
-                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
-                      <span style="color: #00a85a; font-size: 12px;">⭐</span>
-                      <strong style="color: #374151; font-size: 13px; font-weight: 600;">Рейтинг</strong>
-                    </div>
-                    <p style="margin: 0; color: #6b7280; font-size: 13px; line-height: 1.4;">
+                    <h4 style="margin: 0 0 8px 0; color: #ffffff; font-size: 14px; font-weight: 600;">⭐ Рейтинг</h4>
+                    <p style="margin: 0; color: #d1d5db; font-size: 14px;">
                       ${data.rating.value} из 5 (${data.rating.count || 0} оценок)
                       ${data.rating.reviews ? `, ${data.rating.reviews} отзывов` : ''}
                     </p>
                   </div>
-                `
-                    : ''
-                }
-                
-                ${
-                  data.schedule?.text
-                    ? `
+                `;
+              }
+
+              // Режим работы
+              if (data.schedule?.text) {
+                content += `
                   <div style="margin-bottom: 16px;">
-                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
-                      <span style="color: #00a85a; font-size: 12px;">🕒</span>
-                      <strong style="color: #374151; font-size: 13px; font-weight: 600;">Режим работы</strong>
+                    <h4 style="margin: 0 0 8px 0; color: #ffffff; font-size: 14px; font-weight: 600;">🕒 Режим работы</h4>
+                    <p style="margin: 0; color: #d1d5db; font-size: 14px;">${data.schedule.text}</p>
                     </div>
-                    <p style="margin: 0; color: #6b7280; font-size: 13px; line-height: 1.4;">${data.schedule.text}</p>
+                `;
+              }
+
+              // Дополнительная информация
+              if (data.description) {
+                content += `
+                  <div style="margin-bottom: 16px;">
+                    <h4 style="margin: 0 0 8px 0; color: #ffffff; font-size: 14px; font-weight: 600;">📝 Описание</h4>
+                    <p style="margin: 0; color: #d1d5db; font-size: 14px; line-height: 1.5;">${data.description}</p>
                   </div>
-                `
-                    : ''
-                }
-              </div>
-              
-              <!-- Кнопки -->
-              <div style="
-                border-top: 1px solid #e5e7eb;
-                padding: 16px 20px;
-                display: flex;
-                gap: 10px;
-              ">
-                <button onclick="
-                  window.dispatchEvent(new CustomEvent('map:focus-place', { detail: { id: '${id}' } }));
-                  this.closest('.modal').remove();
-                " style="
-                  flex: 1;
-                  padding: 10px 14px;
-                  background: #00a85a;
-                  color: white;
-                  border: none;
-                  border-radius: 6px;
-                  font-weight: 500;
-                  font-size: 13px;
-                  cursor: pointer;
-                  transition: all 0.2s;
-                " onmouseover="this.style.background='#00bf6f'" onmouseout="this.style.background='#00a85a'">
-                  Показать на карте
-                </button>
-                <button onclick="this.closest('.modal').remove()" style="
-                  flex: 1;
-                  padding: 10px 14px;
-                  background: #f3f4f6;
-                  color: #374151;
-                  border: none;
-                  border-radius: 6px;
-                  font-weight: 500;
-                  font-size: 13px;
-                  cursor: pointer;
-                  transition: all 0.2s;
-                " onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">
-                  Закрыть
-                </button>
+                `;
+              }
+
+              // Если нет данных из API, показываем базовую информацию
+              if (!data.contacts && !data.rating && !data.schedule && !data.photos) {
+                content += `
+                  <div style="margin-bottom: 16px; padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <p style="margin: 0; color: #d1d5db; font-size: 14px; text-align: center;">
+                      Подробная информация недоступна
+                    </p>
               </div>
             `;
+              }
 
-            modal.className = 'modal';
-            modal.appendChild(modalContent);
-            document.body.appendChild(modal);
+              content += `</div>`;
+              return content;
+            };
 
-            // Закрытие по клику на фон
-            modal.addEventListener('click', (e) => {
-              if (e.target === modal) {
-                modal.remove();
+            // Показываем модальное окно с SweetAlert2 в темной теме
+            await Swal.fire({
+              title: data.name || original.title,
+              html: createModalContent(data, original),
+              width: '520px',
+              padding: '24px',
+              background: '#1a1a1a',
+              color: '#f3f4f6',
+              showConfirmButton: true,
+              confirmButtonText: 'Показать на карте',
+              confirmButtonColor: '#10b981',
+              showCancelButton: true,
+              cancelButtonText: 'Закрыть',
+              cancelButtonColor: '#6b7280',
+              customClass: {
+                popup: 'swal2-popup-dark',
+                title: 'swal2-title-dark',
+                htmlContainer: 'swal2-html-dark',
+                confirmButton: 'swal2-confirm-dark',
+                cancelButton: 'swal2-cancel-dark',
+              },
+              didOpen: () => {
+                // Добавляем кастомные стили для темной темы
+                const style = document.createElement('style');
+                style.textContent = `
+                  .swal2-popup-dark {
+                    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+                    border-radius: 20px !important;
+                    box-shadow: 0 32px 64px rgba(0, 0, 0, 0.4), 0 16px 32px rgba(0, 0, 0, 0.2) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                  }
+                  .swal2-title-dark {
+                    font-size: 20px !important;
+                    font-weight: 700 !important;
+                    color: #ffffff !important;
+                    margin-bottom: 16px !important;
+                    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+                  }
+                  .swal2-html-dark {
+                    font-size: 14px !important;
+                    line-height: 1.5 !important;
+                    color: #f3f4f6 !important;
+                  }
+                  .swal2-confirm-dark {
+                    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+                    border: none !important;
+                    border-radius: 12px !important;
+                    font-weight: 600 !important;
+                    padding: 14px 24px !important;
+                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+                  }
+                  .swal2-confirm-dark:hover {
+                    transform: translateY(-2px) !important;
+                    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4) !important;
+                    background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+                  }
+                  .swal2-cancel-dark {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    color: #f3f4f6 !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    border-radius: 12px !important;
+                    font-weight: 600 !important;
+                    padding: 14px 24px !important;
+                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                    backdrop-filter: blur(10px) !important;
+                  }
+                  .swal2-cancel-dark:hover {
+                    background: rgba(255, 255, 255, 0.2) !important;
+                    border-color: rgba(255, 255, 255, 0.3) !important;
+                    transform: translateY(-2px) !important;
+                  }
+                `;
+                document.head.appendChild(style);
+              },
+            }).then((result) => {
+              if (result.isConfirmed) {
+                // Показать на карте
+                window.dispatchEvent(new CustomEvent('map:focus-place', { detail: { id: id } }));
               }
             });
           } catch (err) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { ChatCircle, MagnifyingGlass, PaperPlaneRight, X } from '@phosphor-icons/react/dist/ssr';
+import { ChatCircle, PaperPlaneRight, X } from '@phosphor-icons/react/dist/ssr';
 import React, { useState, useEffect } from 'react';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { apiClient } from '@/lib/api-client';
@@ -13,7 +13,7 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { TextareaReady } from '@/components/ui/textarea-ready';
 // import { Separator } from '@/components/ui/separator';
 // import { motion } from 'framer-motion';
 import { MessageBubble } from './message-bubble';
@@ -79,6 +79,9 @@ export function ChatbotButton() {
     setIsLoading(true);
     setError(null);
 
+    // Очищаем input сразу после отправки
+    setInput('');
+
     // Очищаем карту перед новым запросом
     window.dispatchEvent(new CustomEvent('map:clear'));
 
@@ -107,7 +110,7 @@ export function ChatbotButton() {
           );
         });
         userLocation = [pos.coords.longitude, pos.coords.latitude];
-        console.log('✅ Геолокация получена:', userLocation);
+        console.warn('✅ Геолокация получена:', userLocation);
       } else {
         console.warn('⚠️ Геолокация не поддерживается браузером');
       }
@@ -164,12 +167,17 @@ export function ChatbotButton() {
 
             if (waypoints.length >= 2) {
               // Используем 2ГИС Routing API для автомобильного маршрута
-              const fromPoint = (waypoints[0].projected_point ||
-                waypoints[0].original_point) as any;
-              const toPoint = (waypoints[waypoints.length - 1].projected_point ||
-                waypoints[waypoints.length - 1].original_point) as any;
+              // Преобразуем все waypoints в формат для API
+              const points = waypoints.map((waypoint: any) => {
+                const point = waypoint.projected_point || waypoint.original_point;
+                return {
+                  lat: point.lat,
+                  lon: point.lon,
+                };
+              });
 
-              console.log('Строим автомобильный маршрут от:', fromPoint, 'до:', toPoint);
+              console.warn('Строим автомобильный маршрут через точки:', points);
+              console.warn('Количество промежуточных точек:', points.length);
 
               try {
                 // Используем прямой API 2ГИС согласно документации
@@ -187,23 +195,14 @@ export function ChatbotButton() {
                     Accept: 'application/json',
                   },
                   body: JSON.stringify({
-                    points: [
-                      {
-                        lat: fromPoint.lat,
-                        lon: fromPoint.lon,
-                      },
-                      {
-                        lat: toPoint.lat,
-                        lon: toPoint.lon,
-                      },
-                    ],
+                    points: points,
                     transport: 'car',
                   }),
                 });
 
                 if (routingResponse.ok) {
                   const routeData = await routingResponse.json();
-                  console.log('Данные автомобильного маршрута от 2ГИС:', routeData);
+                  console.warn('Данные автомобильного маршрута от 2ГИС:', routeData);
 
                   // Обрабатываем ответ от 2ГИС API согласно реальной структуре
                   if (
@@ -260,7 +259,7 @@ export function ChatbotButton() {
                       });
                     }
 
-                    console.log('Извлеченные координаты маршрута:', coordinates);
+                    console.warn('Извлеченные координаты маршрута:', coordinates);
 
                     // Рисуем автомобильный маршрут
                     if (coordinates.length > 1) {
@@ -416,52 +415,100 @@ export function ChatbotButton() {
         <Button
           size="icon"
           aria-label="Открыть ассистента"
-          className="fixed bottom-5 right-5 z-50 h-14 w-14 shadow-md"
+          className="fixed bottom-5 right-5 z-50 h-14 w-14 shadow-2xl shadow-primary-500/25 bg-gradient-to-br from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 transition-all duration-300 hover:scale-110 hover:shadow-3xl hover:shadow-primary-500/40 active:scale-95 group"
         >
-          <ChatCircle size={24} weight="fill" />
+          <ChatCircle
+            size={24}
+            weight="fill"
+            className="transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12"
+          />
+
+          {/* Светящийся эффект */}
+          <div className="absolute inset-0 rounded-full bg-primary-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+          {/* Пульсирующий эффект */}
+          <div className="absolute inset-0 rounded-full border-2 border-primary-300/50 animate-ping opacity-0 group-hover:opacity-100" />
         </Button>
       </DrawerTrigger>
       <DrawerContent>
-        <div className="flex items-center justify-between border-b border-zinc-200 pb-3 dark:border-zinc-800">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-500 text-white">
-              <ChatCircle size={20} weight="fill" />
+        <div className="flex items-center justify-between border-b border-zinc-200/60 pb-4 dark:border-zinc-800/60 bg-gradient-to-r from-white/80 to-zinc-50/80 dark:from-zinc-900/80 dark:to-zinc-800/80 backdrop-blur-xl">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/25 transition-all duration-300 hover:scale-105">
+                <ChatCircle size={22} weight="fill" className="transition-transform duration-300" />
+              </div>
+
+              {/* Светящийся эффект */}
+              <div className="absolute inset-0 rounded-xl bg-primary-400/20 blur-md opacity-0 transition-opacity duration-300 hover:opacity-100" />
             </div>
+
             <div>
-              <DrawerTitle className="text-base font-semibold leading-none text-zinc-900 dark:text-white">
+              <DrawerTitle className="text-lg font-bold leading-none text-zinc-900 dark:text-white bg-gradient-to-r from-zinc-900 to-zinc-700 dark:from-white dark:to-zinc-300 bg-clip-text text-transparent">
                 Поиск жилья
               </DrawerTitle>
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Умный помощник по ЖК</p>
+              <p className="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400 font-medium">
+                Умный помощник по ЖК
+              </p>
             </div>
           </div>
+
           <DrawerClose asChild>
             <Button
               variant="ghost"
               size="icon"
               aria-label="Закрыть"
-              className="h-9 w-9 flex-shrink-0"
+              className="h-10 w-10 flex-shrink-0 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all duration-200 hover:scale-110 active:scale-95 hover:rotate-90"
             >
-              <X size={20} weight="bold" />
+              <X size={18} weight="bold" />
             </Button>
           </DrawerClose>
         </div>
 
-        {/* Поле ввода + сабмит через useChat (headless) */}
-        <form onSubmit={onSubmit} className="contents">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Спроси ассистента..."
-            leftSection={
-              <MagnifyingGlass
-                size={20}
-                weight="bold"
-                className="text-zinc-400 dark:text-zinc-500"
-              />
-            }
-            rightSection={
-              <div className="flex items-center gap-1.5">
-                {input && (
+        <div className="relative flex-1 min-h-0 pt-4 bg-gradient-to-b from-transparent via-zinc-50/30 to-zinc-100/50 dark:via-zinc-900/30 dark:to-zinc-800/50">
+          <div className="flex max-h-[60svh] flex-col gap-3 overflow-y-auto px-3 py-2 scrollbar-hide">
+            {uiMessages.map((m) => (
+              <MessageBubble key={m.id} message={m} />
+            ))}
+            {isLoading && (
+              <div className="flex items-center gap-3 px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg">
+                <div className="flex gap-1">
+                  <div className="h-1.5 w-1.5 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                  <div className="h-1.5 w-1.5 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                  <div className="h-1.5 w-1.5 bg-zinc-400 rounded-full animate-bounce" />
+                </div>
+                <span className="text-sm text-zinc-600 dark:text-zinc-400">Поиск...</span>
+              </div>
+            )}
+            {error && (
+              <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+                {String(error)}
+              </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+        </div>
+
+        {/* Поле ввода внизу - расширяемое и адаптивное */}
+        <div className="flex-shrink-0 border-t border-zinc-200/60 dark:border-zinc-800/60 bg-gradient-to-r from-white/95 to-zinc-50/95 dark:from-zinc-900/95 dark:to-zinc-800/95 backdrop-blur-xl p-4">
+          <form onSubmit={onSubmit} className="w-full">
+            <div className="flex items-end gap-3">
+              {/* Поле ввода */}
+              <div className="flex-1">
+                <TextareaReady
+                  value={input}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setInput(e.target.value)}
+                  placeholder="Спроси ассистента о жилье, районах, ценах..."
+                  variant="modern"
+                  size="lg"
+                  disabled={isLoading}
+                  minRows={1}
+                  maxRows={4}
+                />
+              </div>
+
+              {/* Кнопки управления */}
+              <div className="flex items-center gap-2 bg-white/80 dark:bg-zinc-800/80 rounded-xl p-3 backdrop-blur-sm border border-zinc-200/50 dark:border-zinc-700/50">
+                {input.trim() && (
                   <Tooltip.Provider delayDuration={150}>
                     <Tooltip.Root>
                       <Tooltip.Trigger asChild>
@@ -469,11 +516,11 @@ export function ChatbotButton() {
                           variant="ghost"
                           size="icon"
                           onClick={() => setInput('')}
-                          className="h-9 w-9"
+                          className="h-10 w-10 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all duration-200 hover:scale-105 rounded-lg"
                           aria-label="Очистить"
                           type="button"
                         >
-                          <X size={18} weight="bold" />
+                          <X size={20} weight="bold" />
                         </Button>
                       </Tooltip.Trigger>
                       <Tooltip.Portal>
@@ -489,22 +536,21 @@ export function ChatbotButton() {
                     </Tooltip.Root>
                   </Tooltip.Provider>
                 )}
+
                 <Tooltip.Provider delayDuration={150}>
                   <Tooltip.Root>
                     <Tooltip.Trigger asChild>
                       <Button
-                        size="icon"
-                        disabled={isLoading}
-                        aria-label="Отправить"
-                        className={'h-10 w-10 ' + (isLoading ? 'animate-pulse' : '')}
                         type="submit"
+                        size="icon"
+                        disabled={!input.trim() || isLoading}
+                        className="h-10 w-10 bg-primary-500 hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95 rounded-lg shadow-md"
+                        aria-label="Отправить сообщение"
                       >
                         {isLoading ? (
-                          <div className="grid place-items-center">
-                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                          </div>
+                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                         ) : (
-                          <PaperPlaneRight size={16} weight="fill" />
+                          <PaperPlaneRight size={20} weight="bold" />
                         )}
                       </Button>
                     </Tooltip.Trigger>
@@ -521,30 +567,8 @@ export function ChatbotButton() {
                   </Tooltip.Root>
                 </Tooltip.Provider>
               </div>
-            }
-          />
-        </form>
-
-        <div className="relative min-h-[60svh] pt-3">
-          <div className="flex max-h-[65svh] flex-col gap-2 overflow-y-auto px-2 py-1 scrollbar-hide">
-            {uiMessages.map((m) => (
-              <MessageBubble key={m.id} message={m} />
-            ))}
-            {isLoading && (
-              <div className="flex items-center gap-2 px-0.5 py-2">
-                <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary-500" />
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                  Ассистент печатает...
-                </span>
-              </div>
-            )}
-            {error && (
-              <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
-                {String(error)}
-              </div>
-            )}
-            <div ref={chatEndRef} />
-          </div>
+            </div>
+          </form>
         </div>
       </DrawerContent>
     </Drawer>

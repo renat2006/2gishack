@@ -22,9 +22,13 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await response.json();
+    console.warn('Ответ от 2ГИС API:', result);
+
     const items = result.result?.items || [];
+    console.warn('Найденные объекты:', items.length);
 
     if (items.length === 0) {
+      console.warn('Объект не найден в 2ГИС');
       return NextResponse.json({
         error: 'Объект не найден в 2ГИС',
         fallback: {
@@ -88,14 +92,14 @@ export async function POST(request: NextRequest) {
 
       // Фотографии
       photos: photos.map((p: any) => ({
-        url: p.url,
+        image_url: p.url,
         type: p.type,
         width: p.width,
         height: p.height,
       })),
       mainPhoto: mainPhoto
         ? {
-            url: mainPhoto.url,
+            image_url: mainPhoto.url,
             width: mainPhoto.width,
             height: mainPhoto.height,
           }
@@ -125,6 +129,7 @@ export async function POST(request: NextRequest) {
       },
     };
 
+    console.warn('Отправляем подробную информацию:', detailedInfo);
     return NextResponse.json(detailedInfo);
   } catch (error) {
     console.error('Ошибка получения данных из 2ГИС:', error);
