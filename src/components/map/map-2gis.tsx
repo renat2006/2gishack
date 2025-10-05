@@ -19,6 +19,26 @@ interface MarkerData {
   distance?: number;
 }
 
+interface NearbyObject {
+  name: string;
+  distance: number;
+  coords: [number, number];
+}
+
+interface ComplexWithObjects {
+  id: string;
+  name: string;
+  lon: number;
+  lat: number;
+  score_data: {
+    entities: {
+      [key: string]: {
+        nearest_objects: NearbyObject[];
+      };
+    };
+  };
+}
+
 export function Map2GIS({
   className = '',
   center = [
@@ -430,6 +450,280 @@ export function Map2GIS({
           }
         };
 
+        // Обработчик отображения ближайших объектов к ЖК
+        const showNearbyObjectsHandler = (e: any) => {
+          try {
+            const { complexes } = e.detail;
+            console.warn('🔍 Отображаем ближайшие объекты для комплексов:', complexes);
+            console.warn('📊 Количество комплексов:', complexes.length);
+            console.warn('🗺️ MapGL API доступен:', !!mapglAPIRef.current);
+            console.warn('🗺️ Map доступна:', !!map);
+
+            // Проверяем доступность API
+            if (!mapglAPIRef.current || !map) {
+              console.error('❌ MapGL API или карта не инициализированы');
+              return;
+            }
+
+            // Очищаем предыдущие маркеры объектов
+            markersRef.current.forEach((marker) => {
+              if (marker.type === 'nearby_object' && marker.marker && marker.marker.destroy) {
+                marker.marker.destroy();
+              }
+            });
+            markersRef.current = markersRef.current.filter(
+              (marker) => marker.type !== 'nearby_object'
+            );
+
+            // Добавляем маркеры для каждого ЖК и его ближайших объектов
+            complexes.forEach((complex: ComplexWithObjects, complexIndex: number) => {
+              console.warn(`🏢 Обрабатываем ЖК ${complexIndex + 1}:`, complex.name);
+              console.warn('📍 Координаты ЖК:', complex.lon, complex.lat);
+              console.warn('📈 Score data:', complex.score_data);
+              // Добавляем маркер ЖК
+              const complexMarkerElement = document.createElement('div');
+              complexMarkerElement.style.cssText = `
+                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+                border: 3px solid #ffffff;
+                border-radius: 50%;
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+                animation: pulse 2s infinite;
+              `;
+              complexMarkerElement.innerHTML = `
+                <div style="
+                  width: 8px;
+                  height: 8px;
+                  background: #ffffff;
+                  border-radius: 50%;
+                "></div>
+                <style>
+                  @keyframes pulse {
+                    0% { transform: scale(1); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+                    50% { transform: scale(1.1); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.6); }
+                    100% { transform: scale(1); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+                  }
+                </style>
+              `;
+
+              const complexMarker = new mapglAPIRef.current.HtmlMarker(map, {
+                coordinates: [complex.lon, complex.lat],
+                html: complexMarkerElement,
+                anchor: [0.5, 0.5],
+              });
+
+              markersRef.current.push({
+                marker: complexMarker,
+                type: 'complex',
+                data: complex,
+              });
+
+              // Добавляем маркеры ближайших объектов
+              console.warn(
+                '🔍 Entities в score_data:',
+                Object.keys(complex.score_data.entities || {})
+              );
+
+              if (!complex.score_data || !complex.score_data.entities) {
+                console.warn('⚠️ Нет данных о ближайших объектах для ЖК:', complex.name);
+                return;
+              }
+
+              Object.values(complex.score_data.entities).forEach((entity, entityIndex) => {
+                console.warn(`🎯 Обрабатываем entity ${entityIndex + 1}:`, entity);
+                console.warn(
+                  '📦 Количество ближайших объектов:',
+                  entity.nearest_objects?.length || 0
+                );
+
+                if (!entity.nearest_objects || entity.nearest_objects.length === 0) {
+                  console.warn('⚠️ Нет ближайших объектов для entity:', entity);
+                  return;
+                }
+
+                entity.nearest_objects.forEach((object: NearbyObject, index: number) => {
+                  console.warn(
+                    `📍 Объект ${index + 1}:`,
+                    object.name,
+                    'на расстоянии',
+                    object.distance,
+                    'м'
+                  );
+                  const distance = Math.round(object.distance);
+                  const isClosest = index === 0;
+
+                  try {
+                    const objectMarkerElement = document.createElement('div');
+                    objectMarkerElement.style.cssText = `
+                      background: rgba(255, 255, 255, 0.95);
+                      backdrop-filter: blur(12px);
+                      border: 1px solid rgba(255, 255, 255, 0.3);
+                      border-radius: 8px;
+                      padding: 6px 8px;
+                      display: flex;
+                      align-items: center;
+                      gap: 6px;
+                      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                      min-width: 80px;
+                      max-width: 120px;
+                      cursor: pointer;
+                      transition: all 0.2s ease;
+                      animation: ${isClosest ? 'pulse 2s infinite' : 'fadeIn 0.4s ease-out'};
+                      position: relative;
+                      overflow: hidden;
+                    `;
+                    objectMarkerElement.innerHTML = `
+                      <div style="
+                        width: 20px;
+                        height: 20px;
+                        background: ${
+                          isClosest
+                            ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                            : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'
+                        };
+                        border-radius: 4px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        color: white;
+                        flex-shrink: 0;
+                        box-shadow: 0 1px 3px ${
+                          isClosest ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'
+                        };
+                      ">
+                        ${isClosest ? '🏪' : '🏬'}
+                      </div>
+                      <div style="
+                        flex: 1;
+                        min-width: 0;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 1px;
+                      ">
+                        <div style="
+                          font-size: 11px;
+                          font-weight: 600;
+                          color: #1f2937;
+                          line-height: 1.1;
+                          white-space: nowrap;
+                          overflow: hidden;
+                          text-overflow: ellipsis;
+                        ">
+                          ${object.name}
+                        </div>
+                        <div style="
+                          font-size: 9px;
+                          color: #6b7280;
+                          display: flex;
+                          align-items: center;
+                          gap: 3px;
+                        ">
+                          <span style="
+                            background: ${
+                              isClosest ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)'
+                            };
+                            color: ${isClosest ? '#059669' : '#d97706'};
+                            padding: 1px 4px;
+                            border-radius: 3px;
+                            font-size: 8px;
+                            font-weight: 600;
+                          ">${distance}м</span>
+                        </div>
+                      </div>
+                      
+                      <style>
+                        @keyframes pulse {
+                          0%, 100% { transform: scale(1); }
+                          50% { transform: scale(1.05); }
+                        }
+                        @keyframes fadeIn {
+                          from { 
+                            opacity: 0; 
+                            transform: translateY(8px) scale(0.95); 
+                          }
+                          to { 
+                            opacity: 1; 
+                            transform: translateY(0) scale(1); 
+                          }
+                        }
+                      </style>
+                    `;
+
+                    const objectMarker = new mapglAPIRef.current.HtmlMarker(map, {
+                      coordinates: object.coords,
+                      html: objectMarkerElement,
+                      anchor: [0.5, 0.5],
+                    });
+
+                    // Добавляем компактные hover эффекты
+                    objectMarkerElement.addEventListener('mouseenter', () => {
+                      objectMarkerElement.style.transform = 'translateY(-2px) scale(1.05)';
+                      objectMarkerElement.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                      objectMarkerElement.style.background = 'rgba(255, 255, 255, 1)';
+                    });
+
+                    objectMarkerElement.addEventListener('mouseleave', () => {
+                      objectMarkerElement.style.transform = 'translateY(0) scale(1)';
+                      objectMarkerElement.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                      objectMarkerElement.style.background = 'rgba(255, 255, 255, 0.95)';
+                    });
+
+                    // Добавляем обработчик клика на объект
+                    objectMarkerElement.addEventListener('click', (e) => {
+                      e.stopPropagation();
+                      console.warn('Клик по объекту:', object.name);
+                      // Показываем информацию об объекте
+                      window.dispatchEvent(
+                        new CustomEvent('map:show-details', {
+                          detail: {
+                            id: object.name,
+                            data: {
+                              name: object.name,
+                              address: `Расстояние: ${distance}м от ЖК "${complex.name}"`,
+                              rating: null,
+                            },
+                            original: {
+                              title: object.name,
+                              address: `Расстояние: ${distance}м`,
+                              lon: object.coords[0],
+                              lat: object.coords[1],
+                            },
+                          },
+                        })
+                      );
+                    });
+
+                    markersRef.current.push({
+                      marker: objectMarker,
+                      type: 'nearby_object',
+                      data: object,
+                      complex: complex,
+                    });
+                  } catch (markerError) {
+                    console.error('❌ Ошибка создания маркера объекта:', object.name, markerError);
+                  }
+                });
+              });
+            });
+
+            // Центрируем карту на первом ЖК
+            if (complexes.length > 0) {
+              const firstComplex = complexes[0];
+              if (map && map.setCenter) {
+                map.setCenter([firstComplex.lon, firstComplex.lat], { duration: 500 });
+                if (map.setZoom) map.setZoom(14, { duration: 500 });
+              }
+            }
+          } catch (err) {
+            console.error('Ошибка отображения ближайших объектов:', err);
+          }
+        };
+
         // Обработчик показа подробной информации с SweetAlert2
         const showDetailsHandler = async (e: any) => {
           try {
@@ -629,6 +923,11 @@ export function Map2GIS({
         window.addEventListener('map:draw-route', drawRouteHandler as EventListener);
         window.addEventListener('map:focus-marker', focusMarkerHandler as EventListener);
         window.addEventListener('map:show-details', showDetailsHandler as EventListener);
+        window.addEventListener(
+          'map:show-nearby-objects',
+          showNearbyObjectsHandler as EventListener
+        );
+        console.warn('🎯 Обработчик map:show-nearby-objects зарегистрирован');
         window.addEventListener('map:clear', clearMapHandler as EventListener);
 
         // Добавляем обработчик клика по карте для закрытия попапов

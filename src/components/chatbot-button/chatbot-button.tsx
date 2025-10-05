@@ -2,7 +2,6 @@
 
 import { ChatCircle, PaperPlaneRight, X } from '@phosphor-icons/react/dist/ssr';
 import React, { useState, useEffect } from 'react';
-import * as Tooltip from '@radix-ui/react-tooltip';
 import { apiClient } from '@/lib/api-client';
 import { LocalStorage } from '@/utils/storage';
 import {
@@ -385,6 +384,24 @@ export function ChatbotButton() {
               distance: c.distance,
             }));
           window.dispatchEvent(new CustomEvent('map:add-markers', { detail: { points } }));
+
+          // Отображаем ближайшие объекты для каждого ЖК
+          const complexesWithObjects = response.ranked_complexes.map((c: any) => ({
+            id: c.id || c._id,
+            name: c.name,
+            lon: c.lon,
+            lat: c.lat,
+            score_data: c.score_data || { entities: {} },
+          }));
+
+          console.warn('🚀 Отправляем данные о ближайших объектах:', complexesWithObjects);
+          console.warn('📊 Первый комплекс score_data:', complexesWithObjects[0]?.score_data);
+
+          window.dispatchEvent(
+            new CustomEvent('map:show-nearby-objects', {
+              detail: { complexes: complexesWithObjects },
+            })
+          );
         } catch {}
       }
 
@@ -464,111 +481,84 @@ export function ChatbotButton() {
           </DrawerClose>
         </div>
 
-        <div className="relative flex-1 min-h-0 pt-4 bg-gradient-to-b from-transparent via-zinc-50/30 to-zinc-100/50 dark:via-zinc-900/30 dark:to-zinc-800/50">
-          <div className="flex max-h-[60svh] flex-col gap-3 overflow-y-auto px-3 py-2 scrollbar-hide">
-            {uiMessages.map((m) => (
-              <MessageBubble key={m.id} message={m} />
-            ))}
-            {isLoading && (
-              <div className="flex items-center gap-3 px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg">
-                <div className="flex gap-1">
-                  <div className="h-1.5 w-1.5 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                  <div className="h-1.5 w-1.5 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                  <div className="h-1.5 w-1.5 bg-zinc-400 rounded-full animate-bounce" />
+        <div className="flex flex-col flex-1 min-h-0">
+          {/* Область сообщений с фиксированной высотой */}
+          <div className="flex-1 min-h-0 pt-4 bg-gradient-to-b from-transparent via-zinc-50/30 to-zinc-100/50 dark:via-zinc-900/30 dark:to-zinc-800/50">
+            <div className="flex flex-col gap-3 overflow-y-auto px-3 py-2 scrollbar-hide h-full">
+              {uiMessages.map((m) => (
+                <MessageBubble key={m.id} message={m} />
+              ))}
+              {isLoading && (
+                <div className="flex items-center gap-3 px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg">
+                  <div className="flex gap-1">
+                    <div className="h-1.5 w-1.5 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                    <div className="h-1.5 w-1.5 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                    <div className="h-1.5 w-1.5 bg-zinc-400 rounded-full animate-bounce" />
+                  </div>
+                  <span className="text-sm text-zinc-600 dark:text-zinc-400">Поиск...</span>
                 </div>
-                <span className="text-sm text-zinc-600 dark:text-zinc-400">Поиск...</span>
-              </div>
-            )}
-            {error && (
-              <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
-                {String(error)}
-              </div>
-            )}
-            <div ref={chatEndRef} />
-          </div>
-        </div>
-
-        {/* Поле ввода внизу - расширяемое и адаптивное */}
-        <div className="flex-shrink-0 border-t border-zinc-200/60 dark:border-zinc-800/60 bg-gradient-to-r from-white/95 to-zinc-50/95 dark:from-zinc-900/95 dark:to-zinc-800/95 backdrop-blur-xl p-4">
-          <form onSubmit={onSubmit} className="w-full">
-            <div className="flex items-end gap-3">
-              {/* Поле ввода */}
-              <div className="flex-1">
-                <TextareaReady
-                  value={input}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setInput(e.target.value)}
-                  placeholder="Спроси ассистента о жилье, районах, ценах..."
-                  variant="modern"
-                  size="lg"
-                  disabled={isLoading}
-                  minRows={1}
-                  maxRows={4}
-                />
-              </div>
-
-              {/* Кнопки управления */}
-              <div className="flex items-center gap-2 bg-white/80 dark:bg-zinc-800/80 rounded-xl p-3 backdrop-blur-sm border border-zinc-200/50 dark:border-zinc-700/50">
-                {input.trim() && (
-                  <Tooltip.Provider delayDuration={150}>
-                    <Tooltip.Root>
-                      <Tooltip.Trigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setInput('')}
-                          className="h-10 w-10 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all duration-200 hover:scale-105 rounded-lg"
-                          aria-label="Очистить"
-                          type="button"
-                        >
-                          <X size={20} weight="bold" />
-                        </Button>
-                      </Tooltip.Trigger>
-                      <Tooltip.Portal>
-                        <Tooltip.Content
-                          side="top"
-                          align="center"
-                          sideOffset={6}
-                          className="rounded-md bg-zinc-900 px-2.5 py-1.5 text-xs text-white shadow-md dark:bg-zinc-800"
-                        >
-                          Очистить
-                        </Tooltip.Content>
-                      </Tooltip.Portal>
-                    </Tooltip.Root>
-                  </Tooltip.Provider>
-                )}
-
-                <Tooltip.Provider delayDuration={150}>
-                  <Tooltip.Root>
-                    <Tooltip.Trigger asChild>
-                      <Button
-                        type="submit"
-                        size="icon"
-                        disabled={!input.trim() || isLoading}
-                        className="h-10 w-10 bg-primary-500 hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95 rounded-lg shadow-md"
-                        aria-label="Отправить сообщение"
-                      >
-                        {isLoading ? (
-                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                        ) : (
-                          <PaperPlaneRight size={20} weight="bold" />
-                        )}
-                      </Button>
-                    </Tooltip.Trigger>
-                    <Tooltip.Portal>
-                      <Tooltip.Content
-                        side="top"
-                        align="end"
-                        sideOffset={6}
-                        className="rounded-md bg-zinc-900 px-2.5 py-1.5 text-xs text-white shadow-md dark:bg-zinc-800"
-                      >
-                        Отправить
-                      </Tooltip.Content>
-                    </Tooltip.Portal>
-                  </Tooltip.Root>
-                </Tooltip.Provider>
-              </div>
+              )}
+              {error && (
+                <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+                  {String(error)}
+                </div>
+              )}
+              <div ref={chatEndRef} />
             </div>
-          </form>
+          </div>
+
+          {/* Поле ввода - жестко прижато к низу */}
+          <div className="flex-shrink-0 border-t border-zinc-200/60 dark:border-zinc-800/60 bg-gradient-to-r from-white/95 to-zinc-50/95 dark:from-zinc-900/95 dark:to-zinc-800/95 backdrop-blur-xl p-3 pb-safe">
+            <form onSubmit={onSubmit} className="w-full">
+              <div className="flex items-end gap-3">
+                {/* Поле ввода */}
+                <div className="flex-1">
+                  <TextareaReady
+                    value={input}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                      setInput(e.target.value)
+                    }
+                    placeholder="Спроси ассистента о жилье, районах, ценах..."
+                    variant="modern"
+                    size="lg"
+                    disabled={isLoading}
+                    minRows={1}
+                    maxRows={4}
+                  />
+                </div>
+
+                {/* Кнопки управления - оптимизированы для мобильных */}
+                <div className="flex items-center gap-2 bg-white/90 dark:bg-zinc-800/90 rounded-xl p-2 backdrop-blur-sm border border-zinc-200/50 dark:border-zinc-700/50 flex-shrink-0">
+                  {input.trim() && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setInput('')}
+                      className="h-9 w-9 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all duration-200 hover:scale-105 rounded-lg touch-manipulation"
+                      aria-label="Очистить"
+                      type="button"
+                    >
+                      <X size={18} weight="bold" />
+                    </Button>
+                  )}
+
+                  <Button
+                    type="submit"
+                    size="icon"
+                    disabled={!input.trim() || isLoading}
+                    className="h-9 w-9 bg-primary-500 hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95 rounded-lg shadow-md touch-manipulation"
+                    aria-label="Отправить сообщение"
+                  >
+                    {isLoading ? (
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    ) : (
+                      <PaperPlaneRight size={18} weight="bold" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
       </DrawerContent>
     </Drawer>

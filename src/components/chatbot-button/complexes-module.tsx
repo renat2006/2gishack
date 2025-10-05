@@ -67,13 +67,13 @@ export const ComplexesModule: React.FC<ComplexesModuleProps> = ({ items, entitie
         centeredSlides
         effect="coverflow"
         coverflowEffect={{ rotate: 6, stretch: 0, depth: 100, modifier: 1, slideShadows: false }}
-        spaceBetween={16}
-        slidesPerView={1.05}
+        spaceBetween={8}
+        slidesPerView={1.4}
         breakpoints={{
-          480: { slidesPerView: 1.2 },
-          640: { slidesPerView: 1.6 },
-          860: { slidesPerView: 2.2 },
-          1024: { slidesPerView: 2.8 },
+          480: { slidesPerView: 1.6 },
+          640: { slidesPerView: 2.0 },
+          860: { slidesPerView: 2.8 },
+          1024: { slidesPerView: 3.6 },
         }}
         className="px-1"
       >
@@ -91,23 +91,23 @@ export const ComplexesModule: React.FC<ComplexesModuleProps> = ({ items, entitie
                 <HoverCard.Root openDelay={100} closeDelay={100}>
                   <HoverCard.Trigger asChild>
                     <div className="h-full cursor-pointer" onClick={() => handleCardClick(complex)}>
-                      <Card className="relative h-full w-full rounded-lg border border-zinc-200 bg-white p-0 shadow-sm hover:shadow-md hover:border-primary-500 transition-all dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-primary-500">
-                        <div className="relative flex h-full flex-col items-center justify-center gap-2.5 p-4 text-center">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-500 text-white">
-                            <Buildings size={24} weight="fill" />
+                      <Card className="relative h-full w-full rounded-lg border border-zinc-200/50 bg-white/90 backdrop-blur-sm p-0 shadow-sm hover:shadow-md hover:border-primary-400 transition-all duration-200 dark:border-zinc-700/50 dark:bg-zinc-800/90 dark:hover:border-primary-400">
+                        <div className="relative flex h-full flex-col items-center justify-center gap-1.5 p-2 text-center">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-sm">
+                            <Buildings size={12} weight="fill" />
                           </div>
-                          <div className="w-full space-y-1">
-                            <div className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-900 dark:text-white">
+                          <div className="w-full space-y-0.5">
+                            <div className="line-clamp-2 text-[11px] font-semibold leading-tight text-zinc-900 dark:text-white">
                               {complex.name}
                             </div>
                             {complex.address && (
-                              <div className="line-clamp-2 text-xs leading-snug text-zinc-500 dark:text-zinc-400">
+                              <div className="line-clamp-1 text-[9px] leading-tight text-zinc-500 dark:text-zinc-400">
                                 {complex.address}
                               </div>
                             )}
                             {complex.score !== undefined && (
-                              <div className="mt-1.5 inline-flex items-center gap-1 rounded bg-primary-500 px-2 py-0.5 text-xs font-medium text-white">
-                                {complex.score.toFixed(1)}
+                              <div className="mt-0.5 inline-flex items-center gap-0.5 rounded-full bg-primary-500/10 px-1.5 py-0.5 text-[9px] font-medium text-primary-600 dark:text-primary-400">
+                                ⭐ {complex.score.toFixed(1)}
                               </div>
                             )}
                           </div>
@@ -159,23 +159,23 @@ export const ComplexesModule: React.FC<ComplexesModuleProps> = ({ items, entitie
                 </HoverCard.Root>
               ) : (
                 <div className="h-full cursor-pointer" onClick={() => handleCardClick(complex)}>
-                  <Card className="relative h-full w-full rounded-lg border border-zinc-200 bg-white p-0 shadow-sm hover:shadow-md hover:border-primary-500 transition-all dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-primary-500">
-                    <div className="relative flex h-full flex-col items-center justify-center gap-2.5 p-4 text-center">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-500 text-white">
-                        <Buildings size={24} weight="fill" />
+                  <Card className="relative h-full w-full rounded-lg border border-zinc-200/50 bg-white/90 backdrop-blur-sm p-0 shadow-sm hover:shadow-md hover:border-primary-400 transition-all duration-200 dark:border-zinc-700/50 dark:bg-zinc-800/90 dark:hover:border-primary-400">
+                    <div className="relative flex h-full flex-col items-center justify-center gap-1.5 p-2 text-center">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-sm">
+                        <Buildings size={12} weight="fill" />
                       </div>
-                      <div className="w-full space-y-1">
-                        <div className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-900 dark:text-white">
+                      <div className="w-full space-y-0.5">
+                        <div className="line-clamp-2 text-[11px] font-semibold leading-tight text-zinc-900 dark:text-white">
                           {complex.name}
                         </div>
                         {complex.address && (
-                          <div className="line-clamp-2 text-xs leading-snug text-zinc-500 dark:text-zinc-400">
+                          <div className="line-clamp-1 text-[9px] leading-tight text-zinc-500 dark:text-zinc-400">
                             {complex.address}
                           </div>
                         )}
                         {complex.score !== undefined && (
-                          <div className="mt-1.5 inline-flex items-center gap-1 rounded bg-primary-500 px-2 py-0.5 text-xs font-medium text-white">
-                            {complex.score.toFixed(1)}
+                          <div className="mt-0.5 inline-flex items-center gap-0.5 rounded-full bg-primary-500/10 px-1.5 py-0.5 text-[9px] font-medium text-primary-600 dark:text-primary-400">
+                            ⭐ {complex.score.toFixed(1)}
                           </div>
                         )}
                       </div>
